@@ -1,23 +1,23 @@
 package main
 
 import (
-	"github.com/likexian/whois-go"
-	"github.com/likexian/whois-parser-go"
 	"io/ioutil"
-	"strings"
 	"log"
 	"net/http"
-	"time"
 	"strconv"
+	"strings"
+	"time"
 
-	"github.com/kardianos/osext"
+	"github.com/likexian/whois-go"
+
 	"github.com/araddon/dateparse"
+	"github.com/kardianos/osext"
 )
 
 func main() {
-	path,_ := osext.ExecutableFolder()
+	path, _ := osext.ExecutableFolder()
 	domainFile, err := ioutil.ReadFile(path + "/domain")
-	if err != nil{
+	if err != nil {
 		log.Fatalln("打开文件失败")
 	}
 
@@ -26,7 +26,7 @@ func main() {
 	var count = 0
 	var totalCount = 0
 	strs := strings.Split(string(domainFile), "\n")
-	for _, line := range strs{
+	for _, line := range strs {
 		if len(line) <= 0 {
 			continue
 		}
@@ -66,20 +66,19 @@ func main() {
 	sendNotification(strconv.Itoa(count) + "个域名(总共" + strconv.Itoa(totalCount) + "个)查询成功. \n" + minBody)
 
 }
-func dateFormat(date string)time.Time {
-	t,e := dateparse.ParseAny(date)
+func dateFormat(date string) time.Time {
+	t, e := dateparse.ParseAny(date)
 	if e != nil {
 		return time.Now()
 	}
 	return t
 }
 
-func sendFailedPush(domain string, reason string){
+func sendFailedPush(domain string, reason string) {
 	sendNotification("域名: " + domain + " 查询失败 reason: " + reason)
 }
 
-func sendNotification(body string){
+func sendNotification(body string) {
 	url := "https://api.uusing.com/PeNX4RrNFYkwgQYx8jYKck/alert"
 	http.Post(url, "application/x-www-form-urlencoded", strings.NewReader("body="+body))
 }
-
