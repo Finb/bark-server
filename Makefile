@@ -5,7 +5,7 @@ all:
         -output="dist/{{.Dir}}_{{.OS}}_{{.Arch}}" \
     	-ldflags "-w -s"
 
-docker: all
+docker:
 	docker build -t finb/bark-server:${BUILD_VERSION} .
 
 clean:
