@@ -1,6 +1,6 @@
 # Bark
 
-![Bark](http://wx3.sinaimg.cn/mw690/0060lm7Tly1g0nfnjjxbbj30sg0sg757.jpg)
+<img src="https://wx3.sinaimg.cn/mw690/0060lm7Tly1g0nfnjjxbbj30sg0sg757.jpg" width=200px height=200px />
 
 Bark is an iOS App which allows you to push customed notifications to your iPhone.
 
