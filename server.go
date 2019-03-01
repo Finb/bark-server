@@ -1,24 +1,23 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
-	"log"
 	"net/http"
+	"strconv"
+	"strings"
+
+	"github.com/sirupsen/logrus"
+
+	"github.com/lithammer/shortuuid"
+
+	"github.com/go-zoo/bone"
+	bolt "go.etcd.io/bbolt"
 
 	"github.com/sideshow/apns2"
 	"github.com/sideshow/apns2/certificate"
 	"github.com/sideshow/apns2/payload"
-
-	"github.com/boltdb/bolt"
-
-	"encoding/json"
-	"errors"
-	"flag"
-	"strconv"
-	"strings"
-
-	"github.com/go-zoo/bone"
-	"github.com/renstrom/shortuuid"
 )
 
 type BaseResponse struct {
@@ -37,26 +36,34 @@ func responseData(code int, data map[string]interface{}, message string) string 
 }
 
 func ping(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	fmt.Fprint(w, responseData(200, map[string]interface{}{"version": "1.0.0"}, "pong"))
+	defer func() { _ = r.Body.Close() }()
+	_, err := fmt.Fprint(w, responseData(200, map[string]interface{}{"version": "1.0.0"}, "pong"))
+	if err != nil {
+		logrus.Error(err)
+	}
 }
 
-func Index(w http.ResponseWriter, r *http.Request) {
+func index(w http.ResponseWriter, r *http.Request) {
+
 	key := bone.GetValue(r, "key")
 	category := bone.GetValue(r, "category")
 	title := bone.GetValue(r, "title")
 	body := bone.GetValue(r, "body")
 
-	defer r.Body.Close()
-
 	deviceToken, err := getDeviceTokenByKey(key)
 	if err != nil {
-		log.Println("找不到key对应的DeviceToken key: " + key)
-		fmt.Fprint(w, responseString(400, "找不到key对应的DeviceToken, 请确保Key正确! Key可在App端注册获得。"))
+		logrus.Errorf("找不到 key 对应的 DeviceToken key: %s", key)
+		_, err = fmt.Fprint(w, responseString(400, "找不到 Key 对应的 DeviceToken, 请确保 Key 正确! Key 可在 App 端注册获得。"))
+		if err != nil {
+			logrus.Error(err)
+		}
 		return
 	}
 
-	r.ParseForm()
+	err = r.ParseForm()
+	if err != nil {
+		logrus.Error(err)
+	}
 
 	if len(title) <= 0 && len(body) <= 0 {
 		//url中不包含 title body，则从Form里取
@@ -70,7 +77,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	if len(body) <= 0 {
+	if body == "" {
 		body = "无推送文字内容"
 	}
 
@@ -79,25 +86,35 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		params[strings.ToLower(key)] = value[0]
 	}
 
-	log.Println(" ========================== ")
-	log.Println("key: ", key)
-	log.Println("category: ", category)
-	log.Println("title: ", title)
-	log.Println("body: ", body)
-	log.Println("params: ", params)
-	log.Println(" ========================== ")
+	logrus.Println(" ========================== ")
+	logrus.Println("key: ", key)
+	logrus.Println("category: ", category)
+	logrus.Println("title: ", title)
+	logrus.Println("body: ", body)
+	logrus.Println("params: ", params)
+	logrus.Println(" ========================== ")
 
 	err = postPush(category, title, body, deviceToken, params)
 	if err != nil {
-		fmt.Fprint(w, responseString(400, err.Error()))
+		_, err = fmt.Fprint(w, responseString(400, err.Error()))
+		if err != nil {
+			logrus.Error(err)
+		}
 	} else {
-		fmt.Fprint(w, responseString(200, ""))
+		_, err = fmt.Fprint(w, responseString(200, ""))
+		if err != nil {
+			logrus.Error(err)
+		}
 	}
 }
 
 func register(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	r.ParseForm()
+	defer func() { _ = r.Body.Close() }()
+	err := r.ParseForm()
+	if err != nil {
+		logrus.Error(err)
+	}
+
 	key := shortuuid.New()
 	var deviceToken string
 	for key, value := range r.Form {
@@ -108,12 +125,15 @@ func register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(deviceToken) <= 0 {
-		fmt.Fprint(w, responseString(400, "deviceToken 不能为空"))
+		_, err = fmt.Fprint(w, responseString(400, "deviceToken 不能为空"))
+		if err != nil {
+			logrus.Error(err)
+		}
 		return
 	}
 
 	oldKey := r.FormValue("key")
-	boltDB.Update(func(tx *bolt.Tx) error {
+	err = boltDB.Update(func(tx *bolt.Tx) error {
 		bucket, err := tx.CreateBucketIfNotExists([]byte("device"))
 		if err != nil {
 			return err
@@ -127,13 +147,23 @@ func register(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		bucket.Put([]byte(key), []byte(deviceToken))
-		return nil
+		return bucket.Put([]byte(key), []byte(deviceToken))
 	})
-	log.Println("注册设备成功")
-	log.Println("key: ", key)
-	log.Println("deviceToken: ", deviceToken)
-	fmt.Fprint(w, responseData(200, map[string]interface{}{"key": key}, "注册成功"))
+
+	if err != nil {
+		_, err = fmt.Fprint(w, responseString(400, "注册设备失败"))
+		if err != nil {
+			logrus.Error(err)
+		}
+		return
+	}
+	logrus.Println("注册设备成功")
+	logrus.Println("key: ", key)
+	logrus.Println("deviceToken: ", deviceToken)
+	_, err = fmt.Fprint(w, responseData(200, map[string]interface{}{"key": key}, "注册成功"))
+	if err != nil {
+		logrus.Error(err)
+	}
 }
 
 func getDeviceTokenByKey(key string) (string, error) {
@@ -142,7 +172,7 @@ func getDeviceTokenByKey(key string) (string, error) {
 		bucket := tx.Bucket([]byte("device"))
 		deviceTokenBytes = bucket.Get([]byte(key))
 		if deviceTokenBytes == nil {
-			return errors.New("没找到DeviceToken")
+			return errors.New("没找到 DeviceToken")
 		}
 		return nil
 	})
@@ -155,7 +185,7 @@ func getDeviceTokenByKey(key string) (string, error) {
 
 func getb() []byte {
 	//测试证书
-	if IsDev {
+	if dev {
 		return []byte{}
 	}
 	//线上证书
@@ -167,36 +197,36 @@ func postPush(category string, title string, body string, deviceToken string, pa
 	notification := &apns2.Notification{}
 	notification.DeviceToken = deviceToken
 
-	payload := payload.NewPayload().Sound("1107").Category("myNotificationCategory")
+	pl := payload.NewPayload().Sound("1107").Category("myNotificationCategory")
 	badge := params["badge"]
 	if badge != nil {
 		badgeStr, pass := badge.(string)
 		if pass {
 			badgeNum, err := strconv.Atoi(badgeStr)
 			if err == nil {
-				payload = payload.Badge(badgeNum)
+				pl = pl.Badge(badgeNum)
 			}
 		}
 	}
 
 	for key, value := range params {
-		payload = payload.Custom(key, value)
+		pl = pl.Custom(key, value)
 	}
 	if len(title) > 0 {
-		payload.AlertTitle(title)
+		pl.AlertTitle(title)
 	}
 	if len(body) > 0 {
-		payload.AlertBody(body)
+		pl.AlertBody(body)
 	}
-	notification.Payload = payload.MutableContent()
+	notification.Payload = pl.MutableContent()
 	notification.Topic = "me.fin.bark"
 	res, err := apnsClient.Push(notification)
 
 	if err != nil {
-		log.Println("Error:", err)
+		logrus.Println("Error:", err)
 		return errors.New("与苹果推送服务器传输数据失败")
 	}
-	log.Printf("%v %v %v\n", res.StatusCode, res.ApnsID, res.Reason)
+	logrus.Printf("%v %v %v\n", res.StatusCode, res.ApnsID, res.Reason)
 	if res.StatusCode == 200 {
 		return nil
 	} else {
@@ -205,11 +235,10 @@ func postPush(category string, title string, body string, deviceToken string, pa
 
 }
 
-var IsDev bool = false
 var boltDB *bolt.DB
 var apnsClient *apns2.Client
 
-func main() {
+func run() {
 	//f,_:= os.Open("./BarkPush.p12")
 	//t,_ := ioutil.ReadAll(f)
 	//
@@ -220,36 +249,33 @@ func main() {
 	//}
 	//
 	//fmt.Printf(string(t))
-	ip := flag.String("ip", "0.0.0.0", "http listen ip")
-	port := flag.Int("port", 8080, "http listen port")
-	dev := flag.Bool("dev", false, "develop推送，请忽略此参数，设置此参数为True会导致推送失败")
-	flag.Parse()
-
-	IsDev = *dev
 
 	db, err := bolt.Open("bark.db", 0600, nil)
 	if err != nil {
-		log.Fatalln(err)
+		logrus.Panic(err)
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 	boltDB = db
 
-	boltDB.Update(func(tx *bolt.Tx) error {
+	err = boltDB.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte("device"))
 		if err != nil {
-			log.Fatalln(err)
+			logrus.Panic(err)
 		}
 		return err
 	})
+	if err != nil {
+		logrus.Panic(err)
+	}
 
 	cert, err := certificate.FromP12Bytes(getb(), "bp")
 	if err != nil {
-		log.Fatalln("cer error")
+		logrus.Panic("cer error")
 	}
 	apnsClient = apns2.NewClient(cert).Production()
 
-	addr := *ip + ":" + strconv.Itoa(*port)
-	log.Println("Serving HTTP on " + addr)
+	addr := fmt.Sprint(listenAddr, ":", listenPort)
+	logrus.Println("Serving HTTP on " + addr)
 
 	r := bone.New()
 	r.Get("/ping", http.HandlerFunc(ping))
@@ -258,14 +284,14 @@ func main() {
 	r.Get("/register", http.HandlerFunc(register))
 	r.Post("/register", http.HandlerFunc(register))
 
-	r.Get("/:key/:body", http.HandlerFunc(Index))
-	r.Post("/:key/:body", http.HandlerFunc(Index))
+	r.Get("/:key/:body", http.HandlerFunc(index))
+	r.Post("/:key/:body", http.HandlerFunc(index))
 
-	r.Get("/:key/:title/:body", http.HandlerFunc(Index))
-	r.Post("/:key/:title/:body", http.HandlerFunc(Index))
+	r.Get("/:key/:title/:body", http.HandlerFunc(index))
+	r.Post("/:key/:title/:body", http.HandlerFunc(index))
 
-	r.Get("/:key/:category/:title/:body", http.HandlerFunc(Index))
-	r.Post("/:key/:category/:title/:body", http.HandlerFunc(Index))
+	r.Get("/:key/:category/:title/:body", http.HandlerFunc(index))
+	r.Post("/:key/:category/:title/:body", http.HandlerFunc(index))
 
-	log.Fatal(http.ListenAndServe(addr, r))
+	logrus.Fatal(http.ListenAndServe(addr, r))
 }
