@@ -2,7 +2,7 @@
 
 - Docker registry [bark-serve](https://hub.docker.com/r/finab/bark-server)
 ```shell
-docker run -dt --name bark -p 8080:8080 finab/bark-server:
+docker run -dt --name bark -p 8080:8080 finab/bark-server
 ```
 - Manually
 
