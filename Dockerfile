@@ -9,7 +9,8 @@ FROM alpine:3.9
 
 LABEL maintainer="mritd <mritd1234@gmail.com>"
 
-RUN apk upgrade --no-cache
+RUN apk upgrade --no-cache \
+    && apk add ca-certificates
 
 COPY --from=builder /go/bin/bark-server /usr/bin/bark-server
 
