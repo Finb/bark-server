@@ -26,12 +26,12 @@ docker-compose up -d
 
 ### For General User 
 
-- 1、Download precompiled binaries from the release page
+- 1、Download precompiled binaries from the [releases](https://github.com/Finb/bark-server/releases) page
 - 2、Add executable permissions to the bark-server binary: `chmod +x bark-server`
 - 3、Start bark-server: `./bark-server -l 0.0.0.0 -p 8080 -d ./bark-data`
 - 4、Test the server: `curl localhost:8080/ping`
 
-**Note: Bark-server uses the /data directory to store data by default. Make sure that bark-server has permission to write to the /data directory, otherwise use the `-d` option to change directories.**
+**Note: Bark-server uses the /data directory to store data by default. Make sure that bark-server has permission to write to the /data directory, otherwise use the `-d` option to change the directory.**
 
 #### Other documents:
 
