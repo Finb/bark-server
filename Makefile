@@ -6,7 +6,7 @@ all:
     	-ldflags "-w -s"
 
 docker:
-	docker build -t finb/bark-server:${BUILD_VERSION} .
+	docker build -t finab/bark-server:${BUILD_VERSION} .
 
 clean:
 	rm -rf dist

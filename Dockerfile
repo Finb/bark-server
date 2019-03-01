@@ -3,7 +3,11 @@ FROM golang:1.12.0-alpine3.9 AS builder
 ENV GO111MODULE on
 ENV GOPROXY https://athens.azurefd.net
 
-RUN go get -u github.com/finb/bark-server
+COPY . /go/src/github.com/finb/bark-server
+
+WORKDIR /go/src/github.com/finb/bark-server
+
+RUN go install -ldflags "-w -s"
 
 FROM alpine:3.9
 
