@@ -1,20 +1,37 @@
 # Installation
 
-- Docker registry [bark-serve](https://hub.docker.com/r/finab/bark-server)
+## For Docker User
+
+![Docker Automated build](https://img.shields.io/docker/automated/finab/bark-server.svg) ![MicroBadger Size](https://img.shields.io/microbadger/image-size/finab/bark-server.svg) ![MicroBadger Layers](https://img.shields.io/microbadger/layers/finab/bark-server.svg)
+
+The docker image is already available, you can use the following command to run the bark server:
 
 ```shell
 docker run -dt --name bark -p 8080:8080 -v `pwd`/bark-data:/data finab/bark-server
 ```
 
-- Manually
+## For General User 
 
-[https://day.app/2018/06/bark-server-document/](https://day.app/2018/06/bark-server-document/)
+- 1、Download precompiled binaries from the release page
+- 2、Add executable permissions to the bark-server binary: `chmod +x bark-server`
+- 3、Start bark-server: `./bark-server -l 0.0.0.0 -p 8080 -d ./bark-data`
+- 4、Test the server: `curl localhost:8080/ping`
+
+**Note: Bark-server uses the /data directory to store data by default. Make sure that bark-server has permission to write to the /data directory, otherwise use the `-d` option to change directories.**
+
+### Other documents:
+
+- [https://day.app/2018/06/bark-server-document/](https://day.app/2018/06/bark-server-document/)
   
-# Next
+# Contributing to bark-server
 
-```
-curl http://0.0.0.0:8080/ping
-```
+## Development environment
+
+This project requires at least the golang 1.12 version to compile and requires Go mod support.
+
+- Golang 1.12
+- GoLand 2018.3.4 or other Go IDE
+- Docker(Optional)
 
 # Update 
 
