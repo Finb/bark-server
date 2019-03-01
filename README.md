@@ -19,9 +19,8 @@ docker run -dt --name bark -p 8080:8080 -v `pwd`/bark-data:/data finab/bark-serv
 If you use the docker-compose tool, you can copy docker-copose.yaml under this project to any directory and run it:
 
 ``` sh
-mkdir bark
-cp bark-server/docker-compose.yaml bark/docker-compose.yaml
-cd bark
+mkdir bark && cd bark
+curl -sL https://git.io/fhAsj > docker-compose.yaml
 docker-compose up -d
 ```
 
