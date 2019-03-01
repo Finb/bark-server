@@ -1,12 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"net"
-	"os"
 
 	"github.com/sirupsen/logrus"
-
 	"github.com/spf13/cobra"
 )
 
@@ -14,10 +11,6 @@ var listenAddr net.IP
 var listenPort int
 var debug bool
 var dev bool
-
-func main() {
-	execute()
-}
 
 var rootCmd = &cobra.Command{
 	Use:   "bark-server",
@@ -30,14 +23,17 @@ Bark Server.`,
 			TimestampFormat: "2006-01-02 15:04:05",
 		})
 
-		run()
+		if debug {
+			logrus.SetLevel(logrus.DebugLevel)
+		}
+
+		runBarkServer()
 	},
 }
 
-func execute() {
+func main() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		logrus.Fatal(err)
 	}
 }
 

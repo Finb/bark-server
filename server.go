@@ -238,7 +238,7 @@ func postPush(category string, title string, body string, deviceToken string, pa
 var boltDB *bolt.DB
 var apnsClient *apns2.Client
 
-func run() {
+func runBarkServer() {
 	//f,_:= os.Open("./BarkPush.p12")
 	//t,_ := ioutil.ReadAll(f)
 	//
@@ -259,9 +259,6 @@ func run() {
 
 	err = boltDB.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte("device"))
-		if err != nil {
-			logrus.Panic(err)
-		}
 		return err
 	})
 	if err != nil {
@@ -270,7 +267,7 @@ func run() {
 
 	cert, err := certificate.FromP12Bytes(getb(), "bp")
 	if err != nil {
-		logrus.Panic("cer error")
+		logrus.Panicf("load cert failed: ", err)
 	}
 	apnsClient = apns2.NewClient(cert).Production()
 
@@ -293,5 +290,8 @@ func run() {
 	r.Get("/:key/:category/:title/:body", http.HandlerFunc(index))
 	r.Post("/:key/:category/:title/:body", http.HandlerFunc(index))
 
-	logrus.Fatal(http.ListenAndServe(addr, r))
+	err = http.ListenAndServe(addr, r)
+	if err != nil {
+		logrus.Fatal(err)
+	}
 }
