@@ -2,7 +2,7 @@
 
 - Docker [bark-serve repository](https://hub.docker.com/r/finab/bark-server)
 ```shell
-docker run -dt --name bark -p 8999:8080 finab/bark-server:v1.0.0
+docker run -dt --name bark -p 8080:8080 finab/bark-server:v1.0.0
 ```
 - Manually
 
