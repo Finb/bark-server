@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -250,7 +252,15 @@ func runBarkServer() {
 	//
 	//fmt.Printf(string(t))
 
-	db, err := bolt.Open("bark.db", 0600, nil)
+	if _, err := os.Stat(dataDir); os.IsNotExist(err) {
+		if err = os.Mkdir(dataDir, 0755); err != nil {
+			logrus.Fatal(err)
+		}
+	} else if err != nil {
+		logrus.Fatal(err)
+	}
+
+	db, err := bolt.Open(filepath.Join(dataDir, "bark.db"), 0600, nil)
 	if err != nil {
 		logrus.Panic(err)
 	}

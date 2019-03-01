@@ -14,6 +14,8 @@ RUN apk upgrade --no-cache \
 
 COPY --from=builder /go/bin/bark-server /usr/bin/bark-server
 
+VOLUME /data
+
 EXPOSE 8080
 
 CMD ["bark-server"]

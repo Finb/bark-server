@@ -1,14 +1,17 @@
 # Installation
 
 - Docker registry [bark-serve](https://hub.docker.com/r/finab/bark-server)
+
 ```shell
-docker run -dt --name bark -p 8080:8080 finab/bark-server
+docker run -dt --name bark -p 8080:8080 -v `pwd`/bark-data:/data finab/bark-server
 ```
+
 - Manually
 
-  [https://day.app/2018/06/bark-server-document/](https://day.app/2018/06/bark-server-document/)
+[https://day.app/2018/06/bark-server-document/](https://day.app/2018/06/bark-server-document/)
   
 # Next
+
 ```
 curl http://0.0.0.0:8080/ping
 ```

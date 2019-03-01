@@ -11,6 +11,7 @@ var listenAddr net.IP
 var listenPort int
 var debug bool
 var dev bool
+var dataDir string
 
 var rootCmd = &cobra.Command{
 	Use:   "bark-server",
@@ -40,6 +41,7 @@ func main() {
 func init() {
 	rootCmd.PersistentFlags().IPVarP(&listenAddr, "listen", "l", net.ParseIP("0.0.0.0"), "server listen address")
 	rootCmd.PersistentFlags().IntVarP(&listenPort, "port", "p", 8080, "server listen port")
+	rootCmd.PersistentFlags().StringVarP(&dataDir, "data", "d", "/data", "data dir")
 	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "debug mode")
-	rootCmd.PersistentFlags().BoolVar(&dev, "dev", false, "develop mode")
+	rootCmd.PersistentFlags().BoolVar(&dev, "dev", false, "dev mode")
 }
