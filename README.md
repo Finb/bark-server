@@ -6,8 +6,17 @@
 
 The docker image is already available, you can use the following command to run the bark server:
 
-```shell
+``` sh
 docker run -dt --name bark -p 8080:8080 -v `pwd`/bark-data:/data finab/bark-server
+```
+
+If you use the docker-compose tool, you can copy docker-copose.yaml under this project to any directory and run it:
+
+``` sh
+mkdir bark
+cp bark-server/docker-compose.yaml bark/docker-compose.yaml
+cd bark
+docker-compose up -d
 ```
 
 ## For General User 
