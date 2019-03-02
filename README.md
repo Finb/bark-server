@@ -33,7 +33,7 @@ docker-compose up -d
 
 **Note: Bark-server uses the /data directory to store data by default. Make sure that bark-server has permission to write to the /data directory, otherwise use the `-d` option to change the directory.**
 
-#### Other documents:
+### 中文:
 
 - [https://day.app/2018/06/bark-server-document/](https://day.app/2018/06/bark-server-document/)
   
