@@ -1,6 +1,6 @@
 workflow "build and push to dockerhub" {
   on = "push"
-  resolves = ["login", "build", "push"]
+  resolves = ["login", "test", build", "push"]
 }
 
 action "login" {
@@ -13,6 +13,7 @@ action "test" {
 }
 
 action "build" {
+  needs = ["test"]
   uses = "actions/docker/cli@master"
   args = "build -t metrue/bark-server:latest ."
 }
