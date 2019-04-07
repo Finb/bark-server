@@ -8,6 +8,10 @@ action "login" {
   secrets = ["DOCKER_USERNAME", "DOCKER_PASSWORD"]
 }
 
+action "test" {
+  uses="cedrickring/golang-action@1.2.0"
+}
+
 action "build" {
   uses = "actions/docker/cli@master"
   args = "build -t metrue/bark-server:latest ."
