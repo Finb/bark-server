@@ -1,10 +1,21 @@
 version: '3.6'
 services:
   bark:
-    image: finab/bark-server
-    container_name: bark
+    image: metrue/bark-server
+    container_name: bark-server
     restart: always
     volumes:
       - ./bark-server:/data
     ports:
-      - "8080:8080"
+      - "8090:8080"
+  db:
+    image: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/postgresql:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: "bark-server"
+      POSTGRES_PASSWORD: "Happy_2014"
+      PGDATA: "/var/lib/postgresql/data"
