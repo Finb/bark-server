@@ -230,6 +230,15 @@ func postPush(category string, title string, body string, deviceToken string, pa
 	}
 	logrus.Printf("%v %v %v\n", res.StatusCode, res.ApnsID, res.Reason)
 	if res.StatusCode == 200 {
+		data, err := notification.MarshalJSON()
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			db := NewDB(boltDB)
+			if err := db.Append(deviceToken, data); err != nil {
+				fmt.Println(err)
+			}
+		}
 		return nil
 	} else {
 		return errors.New("推送发送失败 " + res.Reason)
@@ -277,7 +286,7 @@ func runBarkServer() {
 
 	cert, err := certificate.FromP12Bytes(getb(), "bp")
 	if err != nil {
-		logrus.Panicf("load cert failed: ", err)
+		logrus.Panicf("load cert failed: %v", err)
 	}
 	apnsClient = apns2.NewClient(cert).Production()
 
