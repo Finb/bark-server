@@ -19,4 +19,5 @@ install:
 .EXPORT_ALL_VARIABLES:
 
 GO111MODULE = on
-GOPROXY = https://athens.azurefd.net
+GOPROXY = https://goproxy.io
+GOSUMDB = sum.golang.google.cn
