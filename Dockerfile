@@ -1,22 +1,23 @@
-FROM golang:1.12.0-alpine3.9 AS builder
+FROM golang:1.13.1-alpine3.10 AS builder
 
 ENV GO111MODULE on
-ENV GOPROXY https://athens.azurefd.net
+ENV GOPROXY https://goproxy.io
+ENV GOSUMDB sum.golang.google.cn
 
 COPY . /go/src/github.com/finb/bark-server
 
 WORKDIR /go/src/github.com/finb/bark-server
 
-RUN go install -ldflags "-w -s"
+RUN go install
 
-FROM alpine:3.9
+FROM alpine:3.10
 
 LABEL maintainer="mritd <mritd1234@gmail.com>"
 
-RUN apk upgrade --no-cache \
+RUN apk upgrade \
     && apk add ca-certificates
 
-COPY --from=builder /go/bin/bark-server /usr/bin/bark-server
+COPY --from=builder /go/bin/bark-server /usr/local/bin/bark-server
 
 VOLUME /data
 
