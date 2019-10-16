@@ -19,7 +19,7 @@ docker run -dt --name bark -p 8080:8080 -v `pwd`/bark-data:/data finab/bark-serv
 If you use the docker-compose tool, you can copy docker-copose.yaml under this project to any directory and run it:
 
 ``` sh
-mkdir bark && cd bark
+mkdir bark-server && cd bark-server
 curl -sL https://git.io/fhAsj > docker-compose.yaml
 docker-compose up -d
 ```
@@ -31,7 +31,7 @@ docker-compose up -d
 - 3、Start bark-server: `./bark-server -l 0.0.0.0 -p 8080 -d ./bark-data`
 - 4、Test the server: `curl localhost:8080/ping`
 
-**Note: Bark-server uses the /data directory to store data by default. Make sure that bark-server has permission to write to the /data directory, otherwise use the `-d` option to change the directory.**
+**Note: Bark-server uses the `/data` directory to store data by default. Make sure that bark-server has permission to write to the `/data` directory, otherwise use the `-d` option to change the directory.**
 
 ### 中文:
 
@@ -43,7 +43,7 @@ docker-compose up -d
 
 This project requires at least the golang 1.12 version to compile and requires Go mod support.
 
-- Golang 1.12
+- Golang 1.13
 - GoLand 2018.3.4 or other Go IDE
 - Docker(Optional)
 
