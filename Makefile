@@ -3,17 +3,17 @@ BUILD_DATE      := $(shell date "+%F %T")
 COMMIT_SHA1     := $(shell git rev-parse HEAD)
 
 all:
-	gox  \
-		-output="dist/{{.Dir}}_{{.OS}}_{{.Arch}}" \
+	gox -output="dist/{{.Dir}}_{{.OS}}_{{.Arch}}" \
 		-ldflags	"-X 'main.Version=${BUILD_VERSION}' \
 					-X 'main.BuildDate=${BUILD_DATE}' \
 					-X 'main.CommitID=${COMMIT_SHA1}'"
 
 docker:
-	docker build -t finab/bark-server:${BUILD_VERSION} .
+	docker build -t finab/bark-server:${BUILD_VERSION} -f deploy/Dockerfile .
 
 release: clean all
-	ghr -u mritd -t ${GITHUB_RELEASE_TOKEN} -replace -recreate --debug ${BUILD_VERSION} dist
+	ghr -u finab -t ${GITHUB_RELEASE_TOKEN} -replace -recreate --debug ${BUILD_VERSION} dist
+	cp deploy/* dist
 
 clean:
 	rm -rf dist

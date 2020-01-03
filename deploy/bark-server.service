@@ -1,0 +1,11 @@
+[Unit]
+Description=Bark server
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/bark-server
+ExecStop=/bin/kill -s QUIT $MAINPID
+
+[Install]
+WantedBy=multi-user.target
