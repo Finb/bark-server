@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 
@@ -39,7 +40,12 @@ func responseData(code int, data map[string]interface{}, message string) string 
 
 func ping(w http.ResponseWriter, r *http.Request) {
 	defer func() { _ = r.Body.Close() }()
-	_, err := fmt.Fprint(w, responseData(200, map[string]interface{}{"version": "1.0.0", "build": "2"}, "pong"))
+	_, err := fmt.Fprint(w, responseData(200, map[string]interface{}{
+		"version": Version,
+		"build":   BuildDate,
+		"arch":    runtime.GOOS + "/" + runtime.GOARCH,
+		"commit":  CommitID,
+	}, "pong"))
 	if err != nil {
 		logrus.Error(err)
 	}
