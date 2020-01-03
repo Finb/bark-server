@@ -13,7 +13,7 @@ docker:
 	docker build -t finab/bark-server:${BUILD_VERSION} .
 
 release: clean all
-	ghr -u mritd -t ${GITHUB_RELEASE_TOKEN{ -replace -recreate --debug ${BUILD_VERSION} dist
+	ghr -u mritd -t ${GITHUB_RELEASE_TOKEN} -replace -recreate --debug ${BUILD_VERSION} dist
 
 clean:
 	rm -rf dist
