@@ -12,8 +12,8 @@ docker:
 	docker build -t finab/bark-server:${BUILD_VERSION} -f deploy/Dockerfile .
 
 release: clean all
-	ghr -u finb -t ${GITHUB_RELEASE_TOKEN} -replace -recreate --debug ${BUILD_VERSION} dist
 	cp deploy/* dist
+	ghr -u finb -t ${GITHUB_RELEASE_TOKEN} -replace -recreate --debug ${BUILD_VERSION} dist
 
 clean:
 	rm -rf dist
