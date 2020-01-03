@@ -9,7 +9,7 @@ all:
 					-X 'main.CommitID=${COMMIT_SHA1}'"
 
 docker:
-	docker build -t finab/bark-server:${BUILD_VERSION} -f deploy/Dockerfile .
+	cat deploy/Dockerfile | docker build -t finab/bark-server:${BUILD_VERSION} -f - .
 
 release: clean all
 	cp deploy/* dist

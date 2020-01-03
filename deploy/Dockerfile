@@ -4,7 +4,7 @@ ENV GO111MODULE on
 ENV GOPROXY https://goproxy.io
 ENV GOSUMDB sum.golang.google.cn
 
-COPY .. /go/src/github.com/finb/bark-server
+COPY . /go/src/github.com/finb/bark-server
 
 WORKDIR /go/src/github.com/finb/bark-server
 
