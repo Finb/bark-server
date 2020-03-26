@@ -4,6 +4,22 @@
 
 [Bark](https://github.com/Finb/Bark) is an iOS App which allows you to push customed notifications to your iPhone.
 
+
+## Table of Contents
+
+   * [Bark](#bark)
+      * [Installation](#installation)
+         * [For Docker User](#for-docker-user)
+         * [For General User](#for-general-user)
+         * [For Developer](#for-developer)
+         * [Nginx Proxy](#nginx-proxy)
+      * [Other Docs](#other-docs)
+         * [中文:](#中文)
+      * [Contributing to bark-server](#contributing-to-bark-server)
+         * [Development environment](#development-environment)
+      * [Update](#update)
+
+
 ## Installation
 
 ### For Docker User
