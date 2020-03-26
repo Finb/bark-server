@@ -4,6 +4,22 @@
 
 [Bark](https://github.com/Finb/Bark) is an iOS App which allows you to push customed notifications to your iPhone.
 
+
+## Table of Contents
+
+   * [Bark](#bark)
+      * [Installation](#installation)
+         * [For Docker User](#for-docker-user)
+         * [For General User](#for-general-user)
+         * [For Developer](#for-developer)
+         * [Nginx Proxy](#nginx-proxy)
+      * [Other Docs](#other-docs)
+         * [中文:](#中文)
+      * [Contributing to bark-server](#contributing-to-bark-server)
+         * [Development environment](#development-environment)
+      * [Update](#update)
+
+
 ## Installation
 
 ### For Docker User
@@ -20,7 +36,7 @@ If you use the docker-compose tool, you can copy docker-copose.yaml under this p
 
 ``` sh
 mkdir bark-server && cd bark-server
-curl -sL https://git.io/fhAsj > docker-compose.yaml
+curl -sL https://git.io/JvSRl > docker-compose.yaml
 docker-compose up -d
 ```
 
@@ -33,18 +49,104 @@ docker-compose up -d
 
 **Note: Bark-server uses the `/data` directory to store data by default. Make sure that bark-server has permission to write to the `/data` directory, otherwise use the `-d` option to change the directory.**
 
+### For Developer
+
+Developers can compile this project by themselves, and the dependencies required for compilation:
+
+- Golang 1.14+
+- Go Mod Enabled(env `GO111MODULE=on`)
+- Go Mod Proxy Enabled(env `GOPROXY=https://goproxy.cn`)
+- `make` Installed
+
+Run the following command to compile this project:
+
+```sh
+# Cross compile all platforms
+make
+
+# Or install into the local GOPATH
+make install
+```
+
+### Nginx Proxy
+
+Most users want to deploy the bark server on the intranet server, and then use Nginx to reverse proxy the bark server;
+here is a simple Nginx configuration example (we assume that the bark server is listening at `192.168.1.123:8080`)
+
+```sh
+# generated 2020-03-26, Mozilla Guideline v5.4, nginx 1.17.7, OpenSSL 1.1.1d, modern configuration
+# https://ssl-config.mozilla.org/#server=nginx&version=1.17.7&config=modern&openssl=1.1.1d&guideline=5.4
+server {
+    listen 80;
+    listen [::]:80;
+    # Replace bark.app.dev with your real domain name.
+    server_name bark.app.dev;
+
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    # Replace bark.app.dev with your real domain name.
+    server_name bark.app.dev;
+
+    ssl_certificate /path/to/signed_cert_plus_intermediates;
+    ssl_certificate_key /path/to/private_key;
+    ssl_session_timeout 1d;
+    ssl_session_cache shared:MozSSL:10m;  # about 40000 sessions
+    ssl_session_tickets off;
+
+    # modern configuration
+    ssl_protocols TLSv1.3;
+    ssl_prefer_server_ciphers off;
+
+    # HSTS (ngx_http_headers_module is required) (63072000 seconds)
+    add_header Strict-Transport-Security "max-age=63072000" always;
+
+    # OCSP stapling
+    ssl_stapling on;
+    ssl_stapling_verify on;
+
+    # verify chain of trust of OCSP response using Root CA and Intermediate certs
+    ssl_trusted_certificate /path/to/root_CA_cert_plus_intermediates;
+
+    # replace with the IP address of your resolver
+    #resolver 127.0.0.1;
+
+    location / {
+
+        log_not_found on;
+        # Replace http://192.168.1.123:8080 with the listening address of the bark server.
+        proxy_pass http://192.168.1.123:8080;
+
+        proxy_read_timeout 300;
+        proxy_connect_timeout 300;
+        proxy_redirect off;
+
+        proxy_set_header Host              $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Real-IP         $remote_addr;
+
+    }
+}
+```
+
+## Other Docs
+
 ### 中文:
 
 - [https://day.app/2018/06/bark-server-document/](https://day.app/2018/06/bark-server-document/)
   
+
 ## Contributing to bark-server
 
 ### Development environment
 
 This project requires at least the golang 1.12 version to compile and requires Go mod support.
 
-- Golang 1.13
-- GoLand 2018.3.4 or other Go IDE
+- Golang 1.14
+- GoLand 2019.3 or other Go IDE
 - Docker(Optional)
 
 ## Update 
