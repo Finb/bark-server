@@ -20,7 +20,7 @@ If you use the docker-compose tool, you can copy docker-copose.yaml under this p
 
 ``` sh
 mkdir bark-server && cd bark-server
-curl -sL https://git.io/fhAsj > docker-compose.yaml
+curl -sL https://git.io/JvSRl > docker-compose.yaml
 docker-compose up -d
 ```
 
@@ -32,6 +32,25 @@ docker-compose up -d
 - 4、Test the server: `curl localhost:8080/ping`
 
 **Note: Bark-server uses the `/data` directory to store data by default. Make sure that bark-server has permission to write to the `/data` directory, otherwise use the `-d` option to change the directory.**
+
+### For Developer
+
+Developers can compile this project by themselves, and the dependencies required for compilation:
+
+- Golang 1.14+
+- Go Mod Enabled(env `GO111MODULE=on`)
+- Go Mod Proxy Enabled(env `GOPROXY=https://goproxy.cn`)
+- `make` Installed
+
+Run the following command to compile this project:
+
+```sh
+# Cross compile all platforms
+make
+
+# Or install into the local GOPATH
+make install
+```
 
 ### 中文:
 

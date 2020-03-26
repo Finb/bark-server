@@ -165,9 +165,9 @@ func register(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	logrus.Println("注册设备成功")
-	logrus.Println("key: ", key)
-	logrus.Println("deviceToken: ", deviceToken)
+	logrus.Info("注册设备成功")
+	logrus.Info("key: ", key)
+	logrus.Info("deviceToken: ", deviceToken)
 	_, err = fmt.Fprint(w, responseData(200, map[string]interface{}{"key": key}, "注册成功"))
 	if err != nil {
 		logrus.Error(err)
@@ -231,10 +231,10 @@ func postPush(category string, title string, body string, deviceToken string, pa
 	res, err := apnsClient.Push(notification)
 
 	if err != nil {
-		logrus.Println("Error:", err)
-		return errors.New("与苹果推送服务器传输数据失败")
+		logrus.Errorf("Error:", err)
+		return fmt.Errorf("与苹果推送服务器传输数据失败: %w", err)
 	}
-	logrus.Printf("%v %v %v\n", res.StatusCode, res.ApnsID, res.Reason)
+	logrus.Infof("%v %v %v\n", res.StatusCode, res.ApnsID, res.Reason)
 	if res.StatusCode == 200 {
 		return nil
 	} else {
@@ -268,7 +268,7 @@ func runBarkServer() {
 
 	db, err := bolt.Open(filepath.Join(dataDir, "bark.db"), 0600, nil)
 	if err != nil {
-		logrus.Panic(err)
+		logrus.Fatal(err)
 	}
 	defer func() { _ = db.Close() }()
 	boltDB = db
@@ -278,17 +278,17 @@ func runBarkServer() {
 		return err
 	})
 	if err != nil {
-		logrus.Panic(err)
+		logrus.Fatal(err)
 	}
 
 	cert, err := certificate.FromP12Bytes(getb(), "bp")
 	if err != nil {
-		logrus.Panicf("load cert failed: ", err)
+		logrus.Fatalf("load cert failed: ", err)
 	}
 	apnsClient = apns2.NewClient(cert).Production()
 
 	addr := fmt.Sprint(listenAddr, ":", listenPort)
-	logrus.Println("Serving HTTP on " + addr)
+	logrus.Info("Serving HTTP on " + addr)
 
 	r := bone.New()
 	r.Get("/ping", http.HandlerFunc(ping))
