@@ -62,8 +62,8 @@ make install
 
 This project requires at least the golang 1.12 version to compile and requires Go mod support.
 
-- Golang 1.13
-- GoLand 2018.3.4 or other Go IDE
+- Golang 1.14
+- GoLand 2019.3 or other Go IDE
 - Docker(Optional)
 
 ## Update 
