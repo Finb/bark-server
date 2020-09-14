@@ -204,8 +204,11 @@ func postPush(category string, title string, body string, deviceToken string, pa
 
 	notification := &apns2.Notification{}
 	notification.DeviceToken = deviceToken
-
-	pl := payload.NewPayload().Sound("1107").Category("myNotificationCategory")
+	var sound string = "1107"
+	if params["sound"] != nil {
+		sound = params["sound"].(string) + ".caf"
+	}
+	pl := payload.NewPayload().Sound(sound).Category("myNotificationCategory")
 	badge := params["badge"]
 	if badge != nil {
 		badgeStr, pass := badge.(string)
