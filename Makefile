@@ -3,10 +3,7 @@ BUILD_DATE      := $(shell date "+%F %T")
 COMMIT_SHA1     := $(shell git rev-parse HEAD)
 
 all:
-	gox -output="dist/{{.Dir}}_{{.OS}}_{{.Arch}}" \
-		-ldflags	"-X 'main.Version=${BUILD_VERSION}' \
-					-X 'main.BuildDate=${BUILD_DATE}' \
-					-X 'main.CommitID=${COMMIT_SHA1}'"
+	./cross_compile.sh
 
 docker:
 	cat deploy/Dockerfile | docker build -t finab/bark-server:${BUILD_VERSION} -f - .
