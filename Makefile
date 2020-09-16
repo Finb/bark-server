@@ -13,7 +13,7 @@ docker:
 
 release: clean all
 	cp deploy/* dist
-	ghr -u finb -t ${GITHUB_RELEASE_TOKEN} -replace -recreate --debug ${BUILD_VERSION} dist
+	ghr -u finb -t ${GITHUB_TOKEN} -replace -recreate --debug ${BUILD_VERSION} dist
 
 clean:
 	rm -rf dist
@@ -26,5 +26,4 @@ install:
 .EXPORT_ALL_VARIABLES:
 
 GO111MODULE = on
-GOPROXY = https://goproxy.io
-GOSUMDB = sum.golang.google.cn
+GOPROXY = https://goproxy.cn
