@@ -10,7 +10,7 @@ docker:
 
 release: clean all
 	cp deploy/* dist
-	ghr -u finb -t ${GITHUB_TOKEN} -replace -recreate --debug ${BUILD_VERSION} dist
+	ghr -u finb -t ${GITHUB_TOKEN} -replace -recreate -name "Bump ${BUILD_VERSION}" --debug ${BUILD_VERSION} dist
 
 clean:
 	rm -rf dist
