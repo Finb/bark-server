@@ -13,7 +13,7 @@ mkdir ${TARGET_DIR}
 for pl in ${PLATFORMS}; do 
     GOOS=$(echo ${pl} | cut -d'/' -f1)
     GOARCH=$(echo ${pl} | cut -d'/' -f2)
-    echo "build => ${TARGET_DIR}/bark_${GOOS}_${GOARCH}"
+    echo "build => ${TARGET_DIR}/bark-server_${GOOS}_${GOARCH}"
     go build -trimpath -o ${TARGET_DIR}/bark_${GOOS}_${GOARCH} \
             -ldflags    "-X 'main.Version=${BUILD_VERSION}' \
                         -X 'main.BuildDate=${BUILD_DATE}' \
