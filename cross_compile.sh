@@ -11,10 +11,15 @@ rm -rf ${TARGET_DIR}
 mkdir ${TARGET_DIR}
 
 for pl in ${PLATFORMS}; do 
-    GOOS=$(echo ${pl} | cut -d'/' -f1)
-    GOARCH=$(echo ${pl} | cut -d'/' -f2)
-    echo "build => ${TARGET_DIR}/bark-server_${GOOS}_${GOARCH}"
-    go build -trimpath -o ${TARGET_DIR}/bark-server_${GOOS}_${GOARCH} \
+    export GOOS=$(echo ${pl} | cut -d'/' -f1)
+    export GOARCH=$(echo ${pl} | cut -d'/' -f2)
+    export TARGET=${TARGET_DIR}/bark-server_${GOOS}_${GOARCH}
+    if [ "${GOOS}" == "windows" ]; then
+        export TARGET=${TARGET_DIR}/bark-server_${GOOS}_${GOARCH}.exe
+    fi
+
+    echo "build => ${TARGET}"
+    go build -trimpath -o ${TARGET} \
             -ldflags    "-X 'main.Version=${BUILD_VERSION}' \
                         -X 'main.BuildDate=${BUILD_DATE}' \
                         -X 'main.CommitID=${COMMIT_SHA1}'\
