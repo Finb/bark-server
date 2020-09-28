@@ -1,4 +1,4 @@
-FROM golang:1.15alpine3.12 AS builder
+FROM golang:1.15-alpine3.12 AS builder
 
 ENV GO111MODULE on
 ENV GOPROXY https://goproxy.cn
@@ -8,13 +8,15 @@ COPY . /go/src/github.com/finb/bark-server
 WORKDIR /go/src/github.com/finb/bark-server
 
 RUN set -ex \
-    && apk add git \
+    && apk add git gcc libc-dev \
     && BUILD_VERSION=`cat version` \
     && BUILD_DATE=`date "+%F %T"` \
     && COMMIT_SHA1=`git rev-parse HEAD` \
-    && go install -ldflags  "-X 'main.Version=${BUILD_VERSION}' \
-                             -X 'main.BuildDate=${BUILD_DATE}' \
-                             -X 'main.CommitID=${COMMIT_SHA1}'"
+    && go install -trimpath -ldflags \
+            "-X 'main.Version=${BUILD_VERSION}' \
+             -X 'main.BuildDate=${BUILD_DATE}' \
+             -X 'main.CommitID=${COMMIT_SHA1}' \
+             -w -s"
 
 FROM alpine:3.12
 
