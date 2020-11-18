@@ -32,6 +32,12 @@ The docker image is already available, you can use the following command to run 
 docker run -dt --name bark -p 8080:8080 -v `pwd`/bark-data:/data finab/bark-server
 ```
 
+If you wish to build the image yourself, run the following command:
+
+``` sh
+docker build -t <IMAGE_TAG> -f deploy/Dockerfile .
+```
+
 If you use the docker-compose tool, you can copy docker-copose.yaml under this project to any directory and run it:
 
 ``` sh
