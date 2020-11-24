@@ -289,7 +289,7 @@ func runBarkServer() {
 		TeamID:  "5U8LBRXG3A",
 	}
 
-	apnsClient = apns2.NewTokenClient(clientToken)
+	apnsClient = apns2.NewTokenClient(clientToken).Production()
 
 	addr := fmt.Sprint(listenAddr, ":", listenPort)
 	logrus.Info("Serving HTTP on " + addr)
