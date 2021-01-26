@@ -151,4 +151,4 @@ This project requires at least the golang 1.12 version to compile and requires G
 
 ## Update 
 
-The push certificate embedded in the program expires on **`2020/01/30`**, please update the program after **`2019/12/01`**
+Now the push certificate embedded in the program will never expire. You only need to update the program if the push fails due to the expired certificate.
