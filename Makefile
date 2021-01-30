@@ -3,7 +3,7 @@ BUILD_DATE      := $(shell date "+%F %T")
 COMMIT_SHA1     := $(shell git rev-parse HEAD)
 
 all:
-	./cross_compile.sh
+	bash .cross_compile.sh bark-server
 
 docker:
 	cat deploy/Dockerfile | docker build -t finab/bark-server:${BUILD_VERSION} -f - .
