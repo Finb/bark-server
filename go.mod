@@ -1,6 +1,6 @@
 module github.com/finb/bark-server
 
-go 1.14
+go 1.15
 
 require (
 	github.com/go-zoo/bone v1.3.0
