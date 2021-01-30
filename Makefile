@@ -8,6 +8,9 @@ all:
 docker:
 	cat deploy/Dockerfile | docker build -t finab/bark-server:${BUILD_VERSION} -f - .
 
+buildx:
+	bash .buildx.sh
+
 release: clean all
 	cp deploy/* dist
 	ghr -u finb -t ${GITHUB_TOKEN} -replace -recreate -name "Bump ${BUILD_VERSION}" --debug ${BUILD_VERSION} dist
@@ -18,7 +21,7 @@ clean:
 install:
 	go install
 
-.PHONY : all release docker clean install
+.PHONY : all release docker buildx clean install
 
 .EXPORT_ALL_VARIABLES:
 
