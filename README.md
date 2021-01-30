@@ -53,7 +53,7 @@ docker-compose up -d
 
 Developers can compile this project by themselves, and the dependencies required for compilation:
 
-- Golang 1.14+
+- Golang 1.15+
 - Go Mod Enabled(env `GO111MODULE=on`)
 - Go Mod Proxy Enabled(env `GOPROXY=https://goproxy.cn`)
 - `make` Installed
@@ -145,7 +145,7 @@ server {
 
 This project requires at least the golang 1.12 version to compile and requires Go mod support.
 
-- Golang 1.14
+- Golang 1.15
 - GoLand 2019.3 or other Go IDE
 - Docker(Optional)
 
