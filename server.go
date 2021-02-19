@@ -19,8 +19,8 @@ import (
 	bolt "go.etcd.io/bbolt"
 
 	"github.com/sideshow/apns2"
-	"github.com/sideshow/apns2/token"
 	"github.com/sideshow/apns2/payload"
+	"github.com/sideshow/apns2/token"
 )
 
 type BaseResponse struct {
@@ -116,7 +116,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func register(w http.ResponseWriter, r *http.Request) {
+func registerFunc(w http.ResponseWriter, r *http.Request) {
 	defer func() { _ = r.Body.Close() }()
 	err := r.ParseForm()
 	if err != nil {
