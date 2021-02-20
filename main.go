@@ -154,6 +154,9 @@ func main() {
 					if err := fiberApp.Shutdown(); err != nil {
 						logger.Errorf("Server forced to shutdown error: %v", err)
 					}
+					if err := db.Close(); err != nil {
+						logger.Errorf("Database close error: %v", err)
+					}
 				}
 			}()
 
