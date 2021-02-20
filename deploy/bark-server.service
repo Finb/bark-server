@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/bark-server
+ExecStart=bash -c "/usr/local/bin/bark-server --pre-fork"
 ExecStop=/bin/kill -s QUIT $MAINPID
 
 [Install]
