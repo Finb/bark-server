@@ -1,8 +1,13 @@
 package main
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
+	"net/http"
 	"sync"
+
+	"golang.org/x/net/http2"
 
 	"github.com/sideshow/apns2/payload"
 
@@ -41,11 +46,29 @@ func apnsSetup() {
 			logger.Fatalf("failed to create APNS auth key: %v", err)
 		}
 
-		apnsClient = apns2.NewTokenClient(&token.Token{
-			AuthKey: authKey,
-			KeyID:   keyID,
-			TeamID:  teamID,
-		}).Production()
+		rootCAs, _ := x509.SystemCertPool()
+		for _, ca := range apnsCAs {
+			rootCAs.AppendCertsFromPEM([]byte(ca))
+		}
+
+		apnsClient = &apns2.Client{
+			Token: &token.Token{
+				AuthKey: authKey,
+				KeyID:   keyID,
+				TeamID:  teamID,
+			},
+			HTTPClient: &http.Client{
+				Transport: &http2.Transport{
+					DialTLS: apns2.DialTLS,
+					TLSClientConfig: &tls.Config{
+						RootCAs: rootCAs,
+					},
+				},
+				Timeout: apns2.HTTPClientTimeout,
+			},
+			Host: apns2.HostProduction,
+		}
+
 	})
 }
 
