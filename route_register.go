@@ -68,11 +68,11 @@ func doRegister(c *fiber.Ctx, compat bool) error {
 	})
 
 	if err != nil {
-		logger.Errorf("route [/register] error: device registration failed: %v", err)
+		logger.Errorf("device registration failed: %v", err)
 		return c.Status(500).JSON(failed(500, "device registration failed: %v", err))
 	}
 
-	logger.Infof("route [/register]: new device registered successfully, deviceKey %s, deviceToken %s", deviceInfo.DeviceKey, deviceInfo.DeviceToken)
+	logger.Infof("new device registered successfully, deviceKey %s, deviceToken %s", deviceInfo.DeviceKey, deviceInfo.DeviceToken)
 	return c.Status(200).JSON(data(map[string]string{
 		// compatible with old resp
 		"key":          deviceInfo.DeviceKey,
