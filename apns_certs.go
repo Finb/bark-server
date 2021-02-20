@@ -10,7 +10,7 @@ sUGxFs/4pw1rIlSV2IC19M8u3G5kq36upOwyFWj9Gi3Ejc9d3sC7+SHRqXrEAJow
 `
 
 // Currently known APNS CA
-var apnsCAs = []string{
+var apnsCAs = [...]string{
 	// AppleComputerRootCertificate.cer
 	`-----BEGIN CERTIFICATE-----
 MIIFujCCBKKgAwIBAgIBATANBgkqhkiG9w0BAQUFADCBhjELMAkGA1UEBhMCVVMx
