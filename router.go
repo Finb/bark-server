@@ -2,14 +2,16 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"sort"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/sirupsen/logrus"
+	fiberlogger "github.com/gofiber/fiber/v2/middleware/logger"
+	fiberrecover "github.com/gofiber/fiber/v2/middleware/recover"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 
 	"github.com/mritd/logger"
 )
@@ -17,14 +19,14 @@ import (
 type CommonResp struct {
 	Code      int         `json:"code"`
 	Message   string      `json:"message"`
-	Data      interface{} `json:"data"`
+	Data      interface{} `json:"data,omitempty"`
 	Timestamp int64       `json:"timestamp"`
 }
 
 type routerFunc struct {
 	Name   string
 	Weight int
-	Func   func(router *gin.Engine)
+	Func   func(router *fiber.App)
 }
 
 type routeSlice []routerFunc
@@ -41,12 +43,12 @@ var routes routeSlice
 // register new route with key name
 // key name is used to eliminate duplicate routes
 // key name not case sensitive
-func registerRoute(name string, f func(router *gin.Engine)) {
+func registerRoute(name string, f func(router *fiber.App)) {
 	registerRouteWithWeight(name, 50, f)
 }
 
 // register new route with weight
-func registerRouteWithWeight(name string, weight int, f func(router *gin.Engine)) {
+func registerRouteWithWeight(name string, weight int, f func(router *fiber.App)) {
 	if weight > 100 || weight < 0 {
 		logger.Fatalf("route [%s] weight must be >= 0 and <=100", name)
 	}
@@ -64,21 +66,18 @@ func registerRouteWithWeight(name string, weight int, f func(router *gin.Engine)
 	})
 }
 
-var router *gin.Engine
-
-func routerSetup(debug bool) {
+func routerSetup(router *fiber.App) {
 	routerOnce.Do(func() {
-		if debug {
-			gin.SetMode(gin.DebugMode)
-		} else {
-			gin.SetMode(gin.ReleaseMode)
-		}
-		router = gin.New()
-
+		router.Use(fiberlogger.New(fiberlogger.Config{
+			Format:     "${time}     INFO    ${ips} ${latency} ${status} ${method} ${url}\n",
+			TimeFormat: "2006-01-02 15:04:05",
+			Output:     os.Stdout,
+		}))
+		router.Use(fiberrecover.New())
 		sort.Sort(routes)
 		for _, r := range routes {
 			r.Func(router)
-			logrus.Infof("load route [%s] success...", r.Name)
+			logger.Infof("load route [%s] success...", r.Name)
 		}
 	})
 }

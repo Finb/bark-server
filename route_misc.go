@@ -2,26 +2,31 @@ package main
 
 import (
 	"runtime"
+	"time"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 )
 
 func init() {
-	registerRoute("misc", func(router *gin.Engine) {
+	registerRoute("misc", func(router *fiber.App) {
 		// ping func only returns a "pong" string, usually used to test server response
-		router.GET("/ping", func(c *gin.Context) {
-			c.String(200, "pong")
+		router.Get("/ping", func(c *fiber.Ctx) error {
+			return c.JSON(CommonResp{
+				Code:      200,
+				Message:   "pong",
+				Timestamp: time.Now().Unix(),
+			})
 		})
 
 		// healthz func only returns a "ok" string, similar to ping func,
 		// healthz func is usually used for health check
-		router.GET("/healthz", func(c *gin.Context) {
-			c.String(200, "ok")
+		router.Get("/healthz", func(c *fiber.Ctx) error {
+			return c.SendString("ok")
 		})
 
 		// info func returns information about the server version
-		router.GET("/info", func(c *gin.Context) {
-			c.JSON(200, map[string]string{
+		router.Get("/info", func(c *fiber.Ctx) error {
+			return c.JSON(map[string]string{
 				"version": version,
 				"build":   buildDate,
 				"arch":    runtime.GOOS + "/" + runtime.GOARCH,

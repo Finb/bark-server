@@ -27,6 +27,13 @@ func databaseSetup(dataDir string) {
 		if err != nil {
 			logger.Fatalf("failed to create database file(%s): %v", filepath.Join(dataDir, "bark.db"), err)
 		}
+		err = bboltDB.Update(func(tx *bbolt.Tx) error {
+			_, err := tx.CreateBucketIfNotExists([]byte(bucketName))
+			return err
+		})
+		if err != nil {
+			logger.Fatalf("failed to create database bucket: %v", err)
+		}
 		db = bboltDB
 	})
 }

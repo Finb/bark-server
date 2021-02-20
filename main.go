@@ -3,6 +3,13 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	jsoniter "github.com/json-iterator/go"
+
+	"github.com/gofiber/fiber/v2"
 
 	"github.com/mritd/logger"
 	"github.com/urfave/cli/v2"
@@ -22,13 +29,13 @@ func main() {
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "addr",
-				Usage:   "Server Listen Address",
+				Usage:   "Server listen address",
 				EnvVars: []string{"BARK_SERVER_ADDRESS"},
 				Value:   "0.0.0.0:8080",
 			},
 			&cli.StringFlag{
 				Name:    "data",
-				Usage:   "Server Data Storage Dir",
+				Usage:   "Server data storage dir",
 				EnvVars: []string{"BARK_SERVER_DATA_DIR"},
 				Value:   "/data",
 			},
@@ -37,6 +44,65 @@ func main() {
 				Usage:   "Enable Debug Level Log",
 				EnvVars: []string{"BARK_SERVER_DEBUG"},
 				Value:   false,
+			},
+			&cli.BoolFlag{
+				Name:    "pre-fork",
+				Usage:   "Enables use of the SO_REUSEPORT socket option",
+				EnvVars: []string{"BARK_SERVER_PRE_FORK"},
+				Value:   false,
+			},
+			&cli.BoolFlag{
+				Name:    "case-sensitive",
+				Usage:   "Enable HTTP URL case sensitive",
+				EnvVars: []string{"BARK_SERVER_CASE_SENSITIVE"},
+				Value:   false,
+			},
+			&cli.BoolFlag{
+				Name:    "strict-routing",
+				Usage:   "Enable strict routing distinction",
+				EnvVars: []string{"BARK_SERVER_STRICT_ROUTING"},
+				Value:   false,
+			},
+			&cli.BoolFlag{
+				Name:    "reduce-memory-usage",
+				Usage:   "Aggressively reduces memory usage at the cost of higher CPU usage if set to true",
+				EnvVars: []string{"BARK_SERVER_REDUCE_MEMORY_USAGE"},
+				Value:   false,
+			},
+			&cli.IntFlag{
+				Name:    "concurrency",
+				Usage:   "Maximum number of concurrent connections",
+				EnvVars: []string{"BARK_SERVER_CONCURRENCY"},
+				Value:   256 * 1024,
+				Hidden:  true,
+			},
+			&cli.DurationFlag{
+				Name:    "read-timeout",
+				Usage:   "The amount of time allowed to read the full request, including the body",
+				EnvVars: []string{"BARK_SERVER_READ_TIMEOUT"},
+				Value:   3 * time.Second,
+				Hidden:  true,
+			},
+			&cli.DurationFlag{
+				Name:    "write-timeout",
+				Usage:   "The maximum duration before timing out writes of the response",
+				EnvVars: []string{"BARK_SERVER_WRITE_TIMEOUT"},
+				Value:   3 * time.Second,
+				Hidden:  true,
+			},
+			&cli.DurationFlag{
+				Name:    "idle-timeout",
+				Usage:   "The maximum amount of time to wait for the next request when keep-alive is enabled",
+				EnvVars: []string{"BARK_SERVER_IDLE_TIMEOUT"},
+				Value:   10 * time.Second,
+				Hidden:  true,
+			},
+			&cli.StringFlag{
+				Name:    "proxy-header",
+				Usage:   "The remote IP address used by the bark server http header",
+				EnvVars: []string{"BARK_SERVER_PROXY_HEADER"},
+				Value:   "",
+				Hidden:  true,
 			},
 		},
 		Authors: []*cli.Author{
@@ -49,9 +115,50 @@ func main() {
 			}
 
 			databaseSetup(c.String("data"))
-			apns2Setup()
-			routerSetup(c.Bool("debug"))
-			return nil
+			apnsSetup()
+
+			fiberApp := fiber.New(fiber.Config{
+				ServerHeader:          "Bark",
+				Prefork:               c.Bool("pre-fork"),
+				CaseSensitive:         c.Bool("case-sensitive"),
+				StrictRouting:         c.Bool("strict-routing"),
+				Concurrency:           c.Int("concurrency"),
+				ReadTimeout:           c.Duration("read-timeout"),
+				WriteTimeout:          c.Duration("write-timeout"),
+				IdleTimeout:           c.Duration("idle-timeout"),
+				ProxyHeader:           c.String("proxy-header"),
+				ReduceMemoryUsage:     c.Bool("reduce-memory-usage"),
+				JSONEncoder:           jsoniter.Marshal,
+				UnescapePath:          true,
+				DisableStartupMessage: !c.Bool("debug"),
+				ErrorHandler: func(c *fiber.Ctx, err error) error {
+					code := fiber.StatusInternalServerError
+					if e, ok := err.(*fiber.Error); ok {
+						code = e.Code
+					}
+					return c.Status(code).JSON(CommonResp{
+						Code:      code,
+						Message:   err.Error(),
+						Timestamp: time.Now().Unix(),
+					})
+				},
+			})
+
+			routerSetup(fiberApp)
+
+			go func() {
+				sigs := make(chan os.Signal)
+				signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+				for range sigs {
+					logger.Warn("Received a termination signal, bark server shutdown...")
+					if err := fiberApp.Shutdown(); err != nil {
+						logger.Errorf("Server forced to shutdown error: %v", err)
+					}
+				}
+			}()
+
+			logger.Infof("Bark Server Listen at: %s", c.String("addr"))
+			return fiberApp.Listen(c.String("addr"))
 		},
 	}
 
