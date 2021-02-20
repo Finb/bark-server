@@ -9,11 +9,11 @@ import (
 	"go.etcd.io/bbolt"
 )
 
-var databaseOnce sync.Once
+var dbOnce sync.Once
 var db *bbolt.DB
 
 func databaseSetup(dataDir string) {
-	databaseOnce.Do(func() {
+	dbOnce.Do(func() {
 		logger.Infof("init database [%s]...", dataDir)
 		if _, err := os.Stat(dataDir); os.IsNotExist(err) {
 			if err = os.MkdirAll(dataDir, 0755); err != nil {
