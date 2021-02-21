@@ -4,18 +4,17 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/lithammer/shortuuid"
 	"github.com/mritd/logger"
 	"go.etcd.io/bbolt"
 )
 
 type DeviceInfo struct {
-	DeviceKey   string `form:"device_key,omitempty" json:"device_key,omitempty" xml:"device_key,omitempty"`
-	DeviceToken string `form:"device_token,omitempty" json:"device_token,omitempty" xml:"device_token,omitempty"`
+	DeviceKey   string `form:"device_key,omitempty" json:"device_key,omitempty" xml:"device_key,omitempty" query:"device_key,omitempty"`
+	DeviceToken string `form:"device_token,omitempty" json:"device_token,omitempty" xml:"device_token,omitempty" query:"device_token,omitempty"`
 
 	// compatible with old req
-	OldDeviceKey   string `form:"key,omitempty" json:"key,omitempty" xml:"key,omitempty"`
-	OldDeviceToken string `form:"devicetoken,omitempty" json:"devicetoken,omitempty" xml:"devicetoken,omitempty"`
+	OldDeviceKey   string `form:"key,omitempty" json:"key,omitempty" xml:"key,omitempty" query:"key,omitempty"`
+	OldDeviceToken string `form:"devicetoken,omitempty" json:"devicetoken,omitempty" xml:"devicetoken,omitempty" query:"devicetoken,omitempty"`
 }
 
 const (
@@ -63,7 +62,7 @@ func doRegister(c *fiber.Ctx, compat bool) error {
 		// it is considered as a new device registration
 		if deviceInfo.DeviceKey == "" || bucket.Get([]byte(deviceInfo.DeviceKey)) == nil {
 			// Generate a new UUID as the deviceKey when a new device register
-			deviceInfo.DeviceKey = shortuuid.New()
+			deviceInfo.DeviceKey = RandStringBytesMaskImprSrc(16)
 		}
 
 		// update the deviceToken

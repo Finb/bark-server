@@ -18,15 +18,15 @@ import (
 )
 
 type PushMessage struct {
-	DeviceKey string `form:"device_key,omitempty" json:"device_key,omitempty" xml:"device_key,omitempty"`
-	Category  string `form:"category,omitempty" json:"category,omitempty" xml:"category,omitempty"`
-	Title     string `form:"title,omitempty" json:"title,omitempty" xml:"title,omitempty"`
-	Body      string `form:"body,omitempty" json:"body,omitempty" xml:"body,omitempty"`
+	DeviceKey string `form:"device_key,omitempty" json:"device_key,omitempty" xml:"device_key,omitempty" query:"device_key,omitempty"`
+	Category  string `form:"category,omitempty" json:"category,omitempty" xml:"category,omitempty" query:"category,omitempty"`
+	Title     string `form:"title,omitempty" json:"title,omitempty" xml:"title,omitempty" query:"title,omitempty"`
+	Body      string `form:"body,omitempty" json:"body,omitempty" xml:"body,omitempty" query:"body,omitempty"`
 	// ios notification sound(system sound please refer to http://iphonedevwiki.net/index.php/AudioServices)
-	Sound     string            `form:"sound,omitempty" json:"sound,omitempty" xml:"sound,omitempty"`
-	ExtParams map[string]string `form:"ext_params,omitempty" json:"ext_params,omitempty" xml:"ext_params,omitempty"`
+	Sound     string            `form:"sound,omitempty" json:"sound,omitempty" xml:"sound,omitempty" query:"sound,omitempty"`
+	ExtParams map[string]string `form:"ext_params,omitempty" json:"ext_params,omitempty" xml:"ext_params,omitempty" query:"ext_params,omitempty"`
 
-	DeviceToken string `form:"-" json:"-" xml:"-"`
+	DeviceToken string `form:"-" json:"-" xml:"-" query:"-"`
 }
 
 const (
