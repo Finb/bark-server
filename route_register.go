@@ -24,7 +24,7 @@ const (
 func init() {
 	registerRoute("register", func(router *fiber.App) {
 		router.Post("/register", func(c *fiber.Ctx) error { return doRegister(c, false) })
-		router.Get("/register_check/:device_key", doRegisterCheck)
+		router.Get("/register_check", doRegisterCheck)
 
 		// compatible with old requests
 		router.Get("/register", func(c *fiber.Ctx) error { return doRegister(c, true) })
@@ -83,10 +83,7 @@ func doRegister(c *fiber.Ctx, compat bool) error {
 }
 
 func doRegisterCheck(c *fiber.Ctx) error {
-	deviceKey := c.Params("device_key")
-	if deviceKey == "" {
-		deviceKey = c.Query("device_key")
-	}
+	deviceKey := c.Query("device_key")
 
 	if deviceKey == "" {
 		return c.Status(400).JSON(failed(400, "device key is empty"))
