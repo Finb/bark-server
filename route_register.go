@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/lithammer/shortuuid"
 	"github.com/mritd/logger"
@@ -23,6 +25,7 @@ const (
 func init() {
 	registerRoute("register", func(router *fiber.App) {
 		router.Post("/register", func(c *fiber.Ctx) error { return doRegister(c, false) })
+		router.Get("/register_check/:device_key", doRegisterCheck)
 
 		// compatible with old requests
 		router.Get("/register", func(c *fiber.Ctx) error { return doRegister(c, true) })
@@ -72,11 +75,32 @@ func doRegister(c *fiber.Ctx, compat bool) error {
 		return c.Status(500).JSON(failed(500, "device registration failed: %v", err))
 	}
 
-	logger.Infof("new device registered successfully, deviceKey %s, deviceToken %s", deviceInfo.DeviceKey, deviceInfo.DeviceToken)
 	return c.Status(200).JSON(data(map[string]string{
 		// compatible with old resp
 		"key":          deviceInfo.DeviceKey,
 		"device_key":   deviceInfo.DeviceKey,
 		"device_token": deviceInfo.DeviceToken,
 	}))
+}
+
+func doRegisterCheck(c *fiber.Ctx) error {
+	deviceKey := c.Params("device_key")
+	if deviceKey == "" {
+		deviceKey = c.Query("device_key")
+	}
+
+	if deviceKey == "" {
+		return c.Status(400).JSON(failed(400, "device key is empty"))
+	}
+
+	err := db.View(func(tx *bbolt.Tx) error {
+		if bs := tx.Bucket([]byte(bucketName)).Get([]byte(deviceKey)); bs == nil {
+			return fmt.Errorf("device not registered")
+		}
+		return nil
+	})
+	if err != nil {
+		return c.Status(400).JSON(failed(400, err.Error()))
+	}
+	return c.Status(200).JSON(success())
 }
