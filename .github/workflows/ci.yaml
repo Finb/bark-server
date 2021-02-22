@@ -41,7 +41,7 @@ jobs:
         env:
           BUILD_VERSION: ${{ steps.version.outputs.content }}
           BUILD_DATE: ${{ steps.vars.outputs.build_date }}
-          COMMIT_SHA1: ${{ GITHUB_SHA }}
+          COMMIT_SHA1: ${{ github.sha }}
         with:
           context: .
           file: ./deploy/Dockerfile
