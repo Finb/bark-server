@@ -1,4 +1,4 @@
-FROM golang:1.15-alpine3.12 AS builder
+FROM golang:1.16-alpine3.12 AS builder
 
 ENV GO111MODULE on
 ENV GOPROXY https://goproxy.cn
@@ -24,12 +24,16 @@ LABEL maintainer="mritd <mritd@linux.com>"
 
 RUN set -ex \
     && apk upgrade \
-    && apk add ca-certificates
+    && apk add ca-certificates bash
 
 COPY --from=builder /go/bin/bark-server /usr/local/bin/bark-server
 
 VOLUME /data
 
 EXPOSE 8080
+
+# Allow bark-server to run in Prefork mode
+# see also: https://docs.gofiber.io/api/fiber#config
+SHELL ["/bin/bash", "-c"]
 
 CMD ["bark-server"]
