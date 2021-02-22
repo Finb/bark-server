@@ -23,23 +23,16 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - 
-        name: Read Version
-        id: version
-        uses: juliangruber/read-file-action@v1
-        with:
-          path: ./version  
-      
       - name: Environment Variable
         id: vars
-        run: echo "::set-output name=build_date::$(date '+%F %T')"
+        run: echo "::set-output name=build_date::$(date '+%F %T') name=build_version::$(cat version)"
 
       -
         name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
         env:
-          BUILD_VERSION: ${{ steps.version.outputs.content }}
+          BUILD_VERSION: ${{ steps.vars.outputs.version }}
           BUILD_DATE: ${{ steps.vars.outputs.build_date }}
           COMMIT_SHA1: ${{ github.sha }}
         with:
@@ -53,6 +46,3 @@ jobs:
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
-
-
-      
