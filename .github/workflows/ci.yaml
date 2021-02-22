@@ -29,12 +29,22 @@ jobs:
         uses: juliangruber/read-file-action@v1
         with:
           path: ./version  
+      
+      - name: Environment Variable
+        id: vars
+        run: echo "::set-output name=build_date::$(date '+%F %T')"
+
       -
         name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
+        env:
+          BUILD_VERSION: ${{ steps.version.outputs.content }}
+          BUILD_DATE: ${{ steps.vars.outputs.commit_sha1 }}
+          COMMIT_SHA1: ${{ GITHUB_SHA }}
         with:
           context: .
+          file: ./deploy/Dockerfile
           push: true
           platforms: linux/arm,linux/arm64,linux/386,linux/amd64
           tags: 
