@@ -56,7 +56,7 @@ func routeDoPush(c *fiber.Ctx, compat bool) error {
 			case "sound":
 				msg.Sound = string(value) + ".caf"
 			default:
-				msg.ExtParams[string(key)] = string(value)
+				msg.ExtParams[strings.ToLower(string(key))] = string(value)
 			}
 		})
 
