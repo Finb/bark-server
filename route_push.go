@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/finb/bark-server/apns"
+
 	"github.com/gofiber/fiber/v2"
 
 	"go.etcd.io/bbolt"
@@ -28,8 +30,9 @@ func init() {
 }
 
 func routeDoPush(c *fiber.Ctx, compat bool) error {
+	var deviceKey string
 	// default value
-	msg := PushMessage{
+	msg := apns.PushMessage{
 		Category:  "Bark",
 		Body:      "NoContent",
 		Sound:     "1107",
@@ -46,7 +49,7 @@ func routeDoPush(c *fiber.Ctx, compat bool) error {
 		c.Request().URI().QueryArgs().VisitAll(func(key, value []byte) {
 			switch strings.ToLower(string(key)) {
 			case "device_key":
-				msg.DeviceKey = string(value)
+				deviceKey = string(value)
 			case "category":
 				msg.Category = string(value)
 			case "title":
@@ -61,8 +64,8 @@ func routeDoPush(c *fiber.Ctx, compat bool) error {
 		})
 
 		// parse url path (highest priority)
-		if deviceKey := c.Params("device_key"); deviceKey != "" {
-			msg.DeviceKey = deviceKey
+		if pathDeviceKey := c.Params("device_key"); pathDeviceKey != "" {
+			deviceKey = pathDeviceKey
 		}
 		if category := c.Params("category"); category != "" {
 			msg.Category = category
@@ -75,13 +78,13 @@ func routeDoPush(c *fiber.Ctx, compat bool) error {
 		}
 	}
 
-	if msg.DeviceKey == "" {
+	if deviceKey == "" {
 		return c.Status(400).JSON(failed(400, "device key is empty"))
 	}
 
 	err := db.View(func(tx *bbolt.Tx) error {
-		if bs := tx.Bucket([]byte(bucketName)).Get([]byte(msg.DeviceKey)); bs == nil {
-			return fmt.Errorf("failed to get [%s] device token from database", msg.DeviceKey)
+		if bs := tx.Bucket([]byte(bucketName)).Get([]byte(deviceKey)); bs == nil {
+			return fmt.Errorf("failed to get [%s] device token from database", deviceKey)
 		} else {
 			msg.DeviceToken = string(bs)
 			return nil
@@ -91,7 +94,7 @@ func routeDoPush(c *fiber.Ctx, compat bool) error {
 		return c.Status(400).JSON(failed(400, "failed to get device token: %v", err))
 	}
 
-	err = apnsPush(&msg)
+	err = apns.Push(&msg)
 	if err != nil {
 		return c.Status(500).JSON(failed(500, "push failed: %v", err))
 	}

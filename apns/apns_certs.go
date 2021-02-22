@@ -1,4 +1,4 @@
-package main
+package apns
 
 // Bark push private key
 const apnsPrivateKey = `-----BEGIN PRIVATE KEY-----

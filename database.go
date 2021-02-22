@@ -12,7 +12,7 @@ import (
 var dbOnce sync.Once
 var db *bbolt.DB
 
-func databaseSetup(dataDir string) {
+func bboltSetup(dataDir string) {
 	dbOnce.Do(func() {
 		logger.Infof("init database [%s]...", dataDir)
 		if _, err := os.Stat(dataDir); os.IsNotExist(err) {

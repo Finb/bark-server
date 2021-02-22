@@ -121,13 +121,6 @@ func main() {
 			{Name: "Finb", Email: "to@day.app"},
 		},
 		Action: func(c *cli.Context) error {
-			if c.Bool("debug") {
-				logger.SetDevelopment()
-			}
-
-			databaseSetup(c.String("data"))
-			apnsSetup()
-
 			fiberApp := fiber.New(fiber.Config{
 				ServerHeader:          "Bark",
 				Prefork:               c.Bool("pre-fork"),
@@ -157,6 +150,7 @@ func main() {
 
 			routerAuth(c.String("user"), c.String("password"), fiberApp)
 			routerSetup(fiberApp)
+			bboltSetup(c.String("data"))
 
 			go func() {
 				sigs := make(chan os.Signal)
