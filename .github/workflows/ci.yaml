@@ -36,12 +36,15 @@ jobs:
         with:
           context: .
           file: ./deploy/Dockerfile
-          platforms: linux/arm,linux/arm64,linux/386,linux/amd64
+          platforms:  |
+            linux/arm
+            linux/arm64
+            linux/386
+            linux/amd64
           tags: |
             finab/bark-server:latest
             finab/bark-server:${{ steps.vars.outputs.build_version }}
-      - run: docker push finab/bark-server:latest
-      - run: docker push finab/bark-server:${{ steps.vars.outputs.build_version }}
+          push: true
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
