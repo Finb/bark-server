@@ -47,7 +47,7 @@ func main() {
 			},
 			&cli.BoolFlag{
 				Name:    "pre-fork",
-				Usage:   "Enables use of the SO_REUSEPORT socket option",
+				Usage:   "Enable use of the SO_REUSEPORT socket option",
 				EnvVars: []string{"BARK_SERVER_PRE_FORK"},
 				Value:   false,
 			},
@@ -68,6 +68,24 @@ func main() {
 				Usage:   "Aggressively reduces memory usage at the cost of higher CPU usage if set to true",
 				EnvVars: []string{"BARK_SERVER_REDUCE_MEMORY_USAGE"},
 				Value:   false,
+			},
+			&cli.StringFlag{
+				Name:    "user",
+				Usage:   "Basic auth username",
+				EnvVars: []string{"BARK_SERVER_BASIC_AUTH_USER"},
+				Value:   "",
+			},
+			&cli.StringFlag{
+				Name:    "password",
+				Usage:   "Basic auth password",
+				EnvVars: []string{"BARK_SERVER_BASIC_AUTH_PASSWORD"},
+				Value:   "",
+			},
+			&cli.StringFlag{
+				Name:    "proxy-header",
+				Usage:   "The remote IP address used by the bark server http header",
+				EnvVars: []string{"BARK_SERVER_PROXY_HEADER"},
+				Value:   "",
 			},
 			&cli.IntFlag{
 				Name:    "concurrency",
@@ -95,13 +113,6 @@ func main() {
 				Usage:   "The maximum amount of time to wait for the next request when keep-alive is enabled",
 				EnvVars: []string{"BARK_SERVER_IDLE_TIMEOUT"},
 				Value:   10 * time.Second,
-				Hidden:  true,
-			},
-			&cli.StringFlag{
-				Name:    "proxy-header",
-				Usage:   "The remote IP address used by the bark server http header",
-				EnvVars: []string{"BARK_SERVER_PROXY_HEADER"},
-				Value:   "",
 				Hidden:  true,
 			},
 		},
@@ -144,6 +155,7 @@ func main() {
 				},
 			})
 
+			routerAuth(c.String("user"), c.String("password"), fiberApp)
 			routerSetup(fiberApp)
 
 			go func() {
