@@ -41,8 +41,8 @@ jobs:
           push: true
           platforms: linux/arm,linux/arm64,linux/386,linux/amd64
           tags: 
-            -finab/bark-server:latest
-            -finab/bark-server:${{ steps.version.outputs.content }}
+            - "finab/bark-server:latest"
+            - "finab/bark-server:${{ steps.version.outputs.content }}"
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
