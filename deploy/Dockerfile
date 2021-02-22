@@ -13,9 +13,9 @@ RUN set -ex \
     && BUILD_DATE=`date "+%F %T"` \
     && COMMIT_SHA1=`git rev-parse HEAD` \
     && go install -trimpath -ldflags \
-            "-X 'main.Version=${BUILD_VERSION}' \
-             -X 'main.BuildDate=${BUILD_DATE}' \
-             -X 'main.CommitID=${COMMIT_SHA1}' \
+            "-X 'main.version=${BUILD_VERSION}' \
+             -X 'main.buildDate=${BUILD_DATE}' \
+             -X 'main.commitID=${COMMIT_SHA1}' \
              -w -s"
 
 FROM alpine:3.12
