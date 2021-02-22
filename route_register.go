@@ -24,9 +24,11 @@ const (
 func init() {
 	registerRoute("register", func(router *fiber.App) {
 		router.Post("/register", func(c *fiber.Ctx) error { return doRegister(c, false) })
-		router.Get("/register_check", doRegisterCheck)
+		router.Get("/register/check", doRegisterCheck)
+	})
 
-		// compatible with old requests
+	// compatible with old requests
+	registerRouteWithWeight("register_compat", 1, func(router *fiber.App) {
 		router.Get("/register", func(c *fiber.Ctx) error { return doRegister(c, true) })
 	})
 }
