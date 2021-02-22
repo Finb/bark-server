@@ -1,4 +1,4 @@
-module github.com/finb/bark-server
+module github.com/finb/bark-server/v2
 
 go 1.16
 

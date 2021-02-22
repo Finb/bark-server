@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/finb/bark-server/apns"
+	"github.com/finb/bark-server/v2/apns"
 
 	"github.com/gofiber/fiber/v2"
 
