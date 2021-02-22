@@ -1,17 +1,14 @@
 FROM golang:1.16-alpine AS builder
 
-ENV GO111MODULE on
-ENV GOPROXY https://goproxy.cn
-
 COPY . /go/src/github.com/finb/bark-server
 
 WORKDIR /go/src/github.com/finb/bark-server
 
 RUN set -ex \
     && apk add git gcc libc-dev \
-    && BUILD_VERSION=`cat version` \
-    && BUILD_DATE=`date "+%F %T"` \
-    && COMMIT_SHA1=`git rev-parse HEAD` \
+    && BUILD_VERSION=$(cat version) \
+    && BUILD_DATE=$(date "+%F %T") \
+    && COMMIT_SHA1=$(git rev-parse HEAD) \
     && go install -trimpath -ldflags \
             "-X 'main.version=${BUILD_VERSION}' \
              -X 'main.buildDate=${BUILD_DATE}' \
