@@ -26,9 +26,9 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      # - name: Environment Variable
-      #   id: vars
-      #   run: echo "::set-output name=build_version::$(cat ./version)"
+      - name: Environment Variable
+        id: vars
+        run: echo "::set-output name=build_version::$(cat ./version)"
       -
         name: Build and push
         id: docker_build
@@ -36,9 +36,12 @@ jobs:
         with:
           context: .
           file: ./deploy/Dockerfile
-          push: true
           platforms: linux/arm,linux/arm64,linux/386,linux/amd64
-          tags: 'finab/bark-server:latest'
+          tags: |
+            finab/bark-server:latest
+            finab/bark-server:${{ steps.vars.outputs.build_version }}
+      - run: docker push finab/bark-server:latest
+      - run: docker push finab/bark-server:${{ steps.vars.outputs.build_version }}
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
