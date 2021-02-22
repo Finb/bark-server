@@ -1,4 +1,4 @@
-FROM golang:1.16-alpine3.12 AS builder
+FROM golang:1.16-alpine AS builder
 
 ENV GO111MODULE on
 ENV GOPROXY https://goproxy.cn
@@ -18,7 +18,7 @@ RUN set -ex \
              -X 'main.commitID=${COMMIT_SHA1}' \
              -w -s"
 
-FROM alpine:3.12
+FROM alpine:3.13
 
 LABEL maintainer="mritd <mritd@linux.com>"
 
