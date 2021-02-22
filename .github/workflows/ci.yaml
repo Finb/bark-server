@@ -40,9 +40,7 @@ jobs:
           file: ./deploy/Dockerfile
           push: true
           platforms: linux/arm,linux/arm64,linux/386,linux/amd64
-          tags: 
-            - "finab/bark-server:latest"
-            - "finab/bark-server:${{ steps.version.outputs.content }}"
+          tags: 'finab/bark-server:latest'
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
