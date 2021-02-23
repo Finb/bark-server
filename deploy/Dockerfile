@@ -26,16 +26,12 @@ RUN [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
 
 RUN set -ex \
     && apk upgrade \
-    && apk add ca-certificates bash
+    && apk add ca-certificates
 
 COPY --from=builder /go/bin/bark-server /usr/local/bin/bark-server
 
 VOLUME /data
 
 EXPOSE 8080
-
-# Allow bark-server to run in Prefork mode
-# see also: https://docs.gofiber.io/api/fiber#config
-SHELL ["/bin/bash", "-c"]
 
 CMD ["bark-server"]

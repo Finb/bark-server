@@ -40,18 +40,6 @@ func main() {
 				Value:   "/data",
 			},
 			&cli.BoolFlag{
-				Name:    "debug",
-				Usage:   "Enable Debug Level Log",
-				EnvVars: []string{"BARK_SERVER_DEBUG"},
-				Value:   false,
-			},
-			&cli.BoolFlag{
-				Name:    "pre-fork",
-				Usage:   "Enable use of the SO_REUSEPORT socket option",
-				EnvVars: []string{"BARK_SERVER_PRE_FORK"},
-				Value:   false,
-			},
-			&cli.BoolFlag{
 				Name:    "case-sensitive",
 				Usage:   "Enable HTTP URL case sensitive",
 				EnvVars: []string{"BARK_SERVER_CASE_SENSITIVE"},
@@ -122,19 +110,16 @@ func main() {
 		},
 		Action: func(c *cli.Context) error {
 			fiberApp := fiber.New(fiber.Config{
-				ServerHeader:          "Bark",
-				Prefork:               c.Bool("pre-fork"),
-				CaseSensitive:         c.Bool("case-sensitive"),
-				StrictRouting:         c.Bool("strict-routing"),
-				Concurrency:           c.Int("concurrency"),
-				ReadTimeout:           c.Duration("read-timeout"),
-				WriteTimeout:          c.Duration("write-timeout"),
-				IdleTimeout:           c.Duration("idle-timeout"),
-				ProxyHeader:           c.String("proxy-header"),
-				ReduceMemoryUsage:     c.Bool("reduce-memory-usage"),
-				JSONEncoder:           jsoniter.Marshal,
-				UnescapePath:          true,
-				DisableStartupMessage: !c.Bool("debug"),
+				ServerHeader:      "Bark",
+				CaseSensitive:     c.Bool("case-sensitive"),
+				StrictRouting:     c.Bool("strict-routing"),
+				Concurrency:       c.Int("concurrency"),
+				ReadTimeout:       c.Duration("read-timeout"),
+				WriteTimeout:      c.Duration("write-timeout"),
+				IdleTimeout:       c.Duration("idle-timeout"),
+				ProxyHeader:       c.String("proxy-header"),
+				ReduceMemoryUsage: c.Bool("reduce-memory-usage"),
+				JSONEncoder:       jsoniter.Marshal,
 				ErrorHandler: func(c *fiber.Ctx, err error) error {
 					code := fiber.StatusInternalServerError
 					if e, ok := err.(*fiber.Error); ok {
