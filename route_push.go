@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/finb/bark-server/v2/apns"
@@ -47,19 +48,23 @@ func routeDoPush(c *fiber.Ctx, compat bool) error {
 	if compat {
 		// parse query args (medium priority)
 		c.Request().URI().QueryArgs().VisitAll(func(key, value []byte) {
+			str, err := url.QueryUnescape(string(value))
+			if err != nil {
+				return
+			}
 			switch strings.ToLower(string(key)) {
 			case "device_key":
-				deviceKey = string(value)
+				deviceKey = str
 			case "category":
-				msg.Category = string(value)
+				msg.Category = str
 			case "title":
-				msg.Title = string(value)
+				msg.Title = str
 			case "body":
-				msg.Body = string(value)
+				msg.Body = str
 			case "sound":
-				msg.Sound = string(value) + ".caf"
+				msg.Sound = str + ".caf"
 			default:
-				msg.ExtParams[strings.ToLower(string(key))] = string(value)
+				msg.ExtParams[strings.ToLower(string(key))] = str
 			}
 		})
 
@@ -68,13 +73,25 @@ func routeDoPush(c *fiber.Ctx, compat bool) error {
 			deviceKey = pathDeviceKey
 		}
 		if category := c.Params("category"); category != "" {
-			msg.Category = category
+			str, err := url.QueryUnescape(category)
+			if err != nil {
+				return err
+			}
+			msg.Category = str
 		}
 		if title := c.Params("title"); title != "" {
-			msg.Title = title
+			str, err := url.QueryUnescape(title)
+			if err != nil {
+				return err
+			}
+			msg.Title = str
 		}
 		if body := c.Params("body"); body != "" {
-			msg.Body = body
+			str, err := url.QueryUnescape(body)
+			if err != nil {
+				return err
+			}
+			msg.Body = str
 		}
 	}
 
