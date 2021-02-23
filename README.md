@@ -13,6 +13,7 @@
          * [For General User](#for-general-user)
          * [For Developer](#for-developer)
          * [Nginx Proxy](#nginx-proxy)
+      * [API V2](#api-v2)
       * [Other Docs](#other-docs)
          * [中文:](#中文)
       * [Contributing to bark-server](#contributing-to-bark-server)
@@ -44,7 +45,7 @@ docker-compose up -d
 
 - 1、Download precompiled binaries from the [releases](https://github.com/Finb/bark-server/releases) page
 - 2、Add executable permissions to the bark-server binary: `chmod +x bark-server`
-- 3、Start bark-server: `./bark-server -l 0.0.0.0 -p 8080 -d ./bark-data`
+- 3、Start bark-server: `./bark-server --addr 0.0.0.0:8080 --data ./bark-data`
 - 4、Test the server: `curl localhost:8080/ping`
 
 **Note: Bark-server uses the `/data` directory to store data by default. Make sure that bark-server has permission to write to the `/data` directory, otherwise use the `-d` option to change the directory.**
@@ -53,7 +54,7 @@ docker-compose up -d
 
 Developers can compile this project by themselves, and the dependencies required for compilation:
 
-- Golang 1.15+
+- Golang 1.16+
 - Go Mod Enabled(env `GO111MODULE=on`)
 - Go Mod Proxy Enabled(env `GOPROXY=https://goproxy.cn`)
 - `make` Installed
@@ -132,6 +133,10 @@ server {
 }
 ```
 
+## API V2
+
+Please read [API_V2.md](docs/API_V2.md).
+
 ## Other Docs
 
 ### 中文:
@@ -145,8 +150,8 @@ server {
 
 This project requires at least the golang 1.12 version to compile and requires Go mod support.
 
-- Golang 1.15
-- GoLand 2019.3 or other Go IDE
+- Golang 1.16
+- GoLand 2020.3 or other Go IDE
 - Docker(Optional)
 
 ## Update 
