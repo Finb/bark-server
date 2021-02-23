@@ -151,7 +151,7 @@ public class SendRequest
 
 ### nodejs
 
-```nodejs
+```node
 // request register 
 (function(callback) {
     'use strict';
@@ -351,7 +351,7 @@ public class SendRequest
 
 ### nodejs
 
-```nodejs
+```node
 // request push 
 (function(callback) {
     'use strict';
