@@ -5,6 +5,7 @@ import (
 	"crypto/x509"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/mritd/logger"
 	"github.com/sideshow/apns2"
@@ -77,6 +78,7 @@ func Push(msg *PushMessage) error {
 		DeviceToken: msg.DeviceToken,
 		Topic:       topic,
 		Payload:     pl.MutableContent(),
+		Expiration: time.Now().Add( 24 * time.Hour),
 	})
 	if err != nil {
 		return err
