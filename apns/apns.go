@@ -78,7 +78,7 @@ func Push(msg *PushMessage) error {
 		DeviceToken: msg.DeviceToken,
 		Topic:       topic,
 		Payload:     pl.MutableContent(),
-		Expiration: time.Now().Add( 24 * time.Hour),
+		Expiration:  time.Now().Add( 24 * time.Hour),
 	})
 	if err != nil {
 		return err
