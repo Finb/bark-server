@@ -19,6 +19,9 @@ func init() {
 
 	// compatible with old requests
 	registerRouteWithWeight("push_compat", 1, func(router *fiber.App) {
+
+		router.Post("/:device_key", func(c *fiber.Ctx) error { return routeDoPush(c, true) })
+
 		router.Get("/:device_key/:body", func(c *fiber.Ctx) error { return routeDoPush(c, true) })
 		router.Post("/:device_key/:body", func(c *fiber.Ctx) error { return routeDoPush(c, true) })
 
