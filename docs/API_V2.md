@@ -9,7 +9,7 @@ the V2 version.**
         + [curl](#curl)
         + [golang](#golang)
         + [python](#python)
-        + [java](#java-1)
+        + [java](#java)
         + [nodejs](#nodejs)
     * [Misc](#misc)
         + [Ping](#ping)
