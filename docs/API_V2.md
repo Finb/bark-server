@@ -6,11 +6,11 @@ the V2 version.**
 
 - [API V2](#api-v2)
     * [Push](#push)
-        + [curl](#curl-1)
-        + [golang](#golang-1)
-        + [python](#python-1)
+        + [curl](#curl)
+        + [golang](#golang)
+        + [python](#python)
         + [java](#java-1)
-        + [nodejs](#nodejs-1)
+        + [nodejs](#nodejs)
     * [Misc](#misc)
         + [Ping](#ping)
         + [Healthz](#healthz)
@@ -61,7 +61,6 @@ func sendPush() {
 	req, err := http.NewRequest("POST", "http://127.0.0.1:8080/push", body)
 
 	// Headers
-	req.Header.Add("Authorization", "Basic Og==")
 	req.Header.Add("Content-Type", "application/json; charset=utf-8")
 
 	// Fetch Request
@@ -99,7 +98,6 @@ def send_request():
         response = requests.post(
             url="http://127.0.0.1:8080/push",
             headers={
-                "Authorization": "Basic Og==",
                 "Content-Type": "application/json; charset=utf-8",
             },
             data=json.dumps({
@@ -144,7 +142,6 @@ public class SendRequest
       Content content = Request.Post("http://127.0.0.1:8080/push")
       
       // Add headers
-      .addHeader("Authorization", "Basic Og==")
       .addHeader("Content-Type", "application/json; charset=utf-8")
       
       // Add body
@@ -175,7 +172,7 @@ public class SendRequest
         port: '8080',
         path: '/push',
         method: 'POST',
-        headers: {"Authorization":"Basic Og==","Content-Type":"application/json; charset=utf-8"}
+        headers: {"Content-Type":"application/json; charset=utf-8"}
     };
     httpOptions.headers['User-Agent'] = 'node ' + process.version;
  
