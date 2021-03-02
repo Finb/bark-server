@@ -58,6 +58,9 @@ func sendPush() {
 
 	// Create request
 	req, err := http.NewRequest("POST", "http://127.0.0.1:8080/push", body)
+	if err != nil {
+		fmt.Println("Failure : ", err)
+	}
 
 	// Headers
 	req.Header.Add("Content-Type", "application/json; charset=utf-8")
