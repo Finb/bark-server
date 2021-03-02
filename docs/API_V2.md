@@ -23,7 +23,6 @@ the V2 version.**
 ```sh
 curl -X "POST" "http://127.0.0.1:8080/push" \
      -H 'Content-Type: application/json; charset=utf-8' \
-     -u ':' \
      -d $'{
   "body": "Test Bark Server",
   "device_key": "nysrshcqielvoxsa",

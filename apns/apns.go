@@ -15,7 +15,8 @@ import (
 )
 
 type PushMessage struct {
-	DeviceToken string `form:"device_token,omitempty" json:"device_token,omitempty" xml:"device_token,omitempty" query:"device_token,omitempty"`
+	DeviceToken string `form:"-" json:"-" xml:"-" query:"-"`
+	DeviceKey   string `form:"device_key,omitempty" json:"device_key,omitempty" xml:"device_key,omitempty" query:"device_key,omitempty"`
 	Category    string `form:"category,omitempty" json:"category,omitempty" xml:"category,omitempty" query:"category,omitempty"`
 	Title       string `form:"title,omitempty" json:"title,omitempty" xml:"title,omitempty" query:"title,omitempty"`
 	Body        string `form:"body,omitempty" json:"body,omitempty" xml:"body,omitempty" query:"body,omitempty"`
@@ -78,7 +79,7 @@ func Push(msg *PushMessage) error {
 		DeviceToken: msg.DeviceToken,
 		Topic:       topic,
 		Payload:     pl.MutableContent(),
-		Expiration:  time.Now().Add( 24 * time.Hour),
+		Expiration:  time.Now().Add(24 * time.Hour),
 	})
 	if err != nil {
 		return err
