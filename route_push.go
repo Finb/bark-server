@@ -34,7 +34,6 @@ func init() {
 }
 
 func routeDoPush(c *fiber.Ctx, compat bool) error {
-	var deviceKey string
 	// default value
 	msg := apns.PushMessage{
 		Category:  "Bark",
@@ -57,7 +56,7 @@ func routeDoPush(c *fiber.Ctx, compat bool) error {
 			}
 			switch strings.ToLower(string(key)) {
 			case "device_key":
-				deviceKey = str
+				msg.DeviceKey = str
 			case "category":
 				msg.Category = str
 			case "title":
@@ -73,7 +72,7 @@ func routeDoPush(c *fiber.Ctx, compat bool) error {
 
 		// parse url path (highest priority)
 		if pathDeviceKey := c.Params("device_key"); pathDeviceKey != "" {
-			deviceKey = pathDeviceKey
+			msg.DeviceKey = pathDeviceKey
 		}
 		if category := c.Params("category"); category != "" {
 			str, err := url.QueryUnescape(category)
@@ -98,13 +97,13 @@ func routeDoPush(c *fiber.Ctx, compat bool) error {
 		}
 	}
 
-	if deviceKey == "" {
+	if msg.DeviceKey == "" {
 		return c.Status(400).JSON(failed(400, "device key is empty"))
 	}
 
 	err := db.View(func(tx *bbolt.Tx) error {
-		if bs := tx.Bucket([]byte(bucketName)).Get([]byte(deviceKey)); bs == nil {
-			return fmt.Errorf("failed to get [%s] device token from database", deviceKey)
+		if bs := tx.Bucket([]byte(bucketName)).Get([]byte(msg.DeviceKey)); bs == nil {
+			return fmt.Errorf("failed to get [%s] device token from database", msg.DeviceKey)
 		} else {
 			msg.DeviceToken = string(bs)
 			return nil
