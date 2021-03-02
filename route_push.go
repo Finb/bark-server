@@ -39,7 +39,7 @@ func routeDoPush(c *fiber.Ctx, compat bool) error {
 		Category:  "Bark",
 		Body:      "NoContent",
 		Sound:     "1107",
-		ExtParams: map[string]string{},
+		ExtParams: make(map[string]interface{}),
 	}
 
 	// always parse body(Lowest priority)

@@ -23,7 +23,7 @@ type PushMessage struct {
 	Body        string `form:"body,omitempty" json:"body,omitempty" xml:"body,omitempty" query:"body,omitempty"`
 	// ios notification sound(system sound please refer to http://iphonedevwiki.net/index.php/AudioServices)
 	Sound     string            `form:"sound,omitempty" json:"sound,omitempty" xml:"sound,omitempty" query:"sound,omitempty"`
-	ExtParams map[string]string `form:"ext_params,omitempty" json:"ext_params,omitempty" xml:"ext_params,omitempty" query:"ext_params,omitempty"`
+	ExtParams map[string]interface{} `form:"ext_params,omitempty" json:"ext_params,omitempty" xml:"ext_params,omitempty" query:"ext_params,omitempty"`
 }
 
 const (
