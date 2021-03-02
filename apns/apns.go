@@ -5,6 +5,7 @@ import (
 	"crypto/x509"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/mritd/logger"
@@ -72,7 +73,8 @@ func Push(msg *PushMessage) error {
 		Category(msg.Category)
 
 	for k, v := range msg.ExtParams {
-		pl.Custom(k, v)
+		// Change all parameter names to lowercase to prevent inconsistent capitalization
+		pl.Custom(strings.ToLower(k), v)
 	}
 
 	resp, err := cli.Push(&apns2.Notification{
