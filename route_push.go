@@ -48,27 +48,43 @@ func routeDoPush(c *fiber.Ctx, compat bool) error {
 	}
 
 	if compat {
+		params := make(map[string]string)
 		// parse query args (medium priority)
 		c.Request().URI().QueryArgs().VisitAll(func(key, value []byte) {
 			str, err := url.QueryUnescape(string(value))
 			if err != nil {
 				return
 			}
+			params[strings.ToLower(string(key))] = str
+		})
+
+		// form values
+		form,err := c.Request().MultipartForm()
+		if err != nil {
+			return c.Status(400).JSON(failed(400, "get form failed: %v", err))
+		}
+		for key,val := range form.Value{
+			if len(val) > 0 {
+				params[strings.ToLower(string(key))] = val[0]
+			}
+		}
+
+		for key, val := range params {
 			switch strings.ToLower(string(key)) {
 			case "device_key":
-				msg.DeviceKey = str
+				msg.DeviceKey = val
 			case "category":
-				msg.Category = str
+				msg.Category = val
 			case "title":
-				msg.Title = str
+				msg.Title = val
 			case "body":
-				msg.Body = str
+				msg.Body = val
 			case "sound":
-				msg.Sound = str + ".caf"
+				msg.Sound = val + ".caf"
 			default:
-				msg.ExtParams[strings.ToLower(string(key))] = str
+				msg.ExtParams[strings.ToLower(string(key))] = val
 			}
-		})
+		}
 
 		// parse url path (highest priority)
 		if pathDeviceKey := c.Params("device_key"); pathDeviceKey != "" {
