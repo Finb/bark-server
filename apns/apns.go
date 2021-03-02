@@ -74,7 +74,7 @@ func Push(msg *PushMessage) error {
 
 	for k, v := range msg.ExtParams {
 		// Change all parameter names to lowercase to prevent inconsistent capitalization
-		pl.Custom(strings.ToLower(k), v.(string))
+		pl.Custom(strings.ToLower(k), fmt.Sprintf("%v", v))
 	}
 
 	resp, err := cli.Push(&apns2.Notification{
