@@ -108,6 +108,9 @@ func routeDoPush(c *fiber.Ctx, compat bool) error {
 	if msg.DeviceKey == "" {
 		return c.Status(400).JSON(failed(400, "device key is empty"))
 	}
+	if msg.Category == "" {
+		msg.Category = "myNotificationCategory"
+	}
 
 	err := db.View(func(tx *bbolt.Tx) error {
 		if bs := tx.Bucket([]byte(bucketName)).Get([]byte(msg.DeviceKey)); bs == nil {
