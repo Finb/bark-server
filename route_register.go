@@ -28,7 +28,7 @@ func init() {
 	})
 
 	// compatible with old requests
-	registerRouteWithWeight("register_compat", 1, func(router *fiber.App) {
+	registerRouteWithWeight("register_compat", 100, func(router *fiber.App) {
 		router.Get("/register", func(c *fiber.Ctx) error { return doRegister(c, true) })
 	})
 }
