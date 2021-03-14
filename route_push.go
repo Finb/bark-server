@@ -36,7 +36,7 @@ func init() {
 func routeDoPush(c *fiber.Ctx, compat bool) error {
 	// default value
 	msg := apns.PushMessage{
-		Category:  "Bark",
+		Category:  "myNotificationCategory",
 		Body:      "NoContent",
 		Sound:     "1107",
 		ExtParams: make(map[string]interface{}),
@@ -107,9 +107,6 @@ func routeDoPush(c *fiber.Ctx, compat bool) error {
 
 	if msg.DeviceKey == "" {
 		return c.Status(400).JSON(failed(400, "device key is empty"))
-	}
-	if msg.Category == "" {
-		msg.Category = "myNotificationCategory"
 	}
 
 	err := db.View(func(tx *bbolt.Tx) error {
