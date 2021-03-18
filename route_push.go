@@ -50,16 +50,23 @@ func routeDoPush(c *fiber.Ctx, compat bool) error {
 	if compat {
 		params := make(map[string]string)
 		visitor := func(key, value []byte) {
-			str, err := url.QueryUnescape(string(value))
-			if err != nil {
-				return
-			}
-			params[strings.ToLower(string(key))] = str
+			params[strings.ToLower(string(key))] = string(value)
 		}
 		// parse query args (medium priority)
 		c.Request().URI().QueryArgs().VisitAll(visitor)
-		// form values
+		// parse post args
 		c.Request().PostArgs().VisitAll(visitor)
+
+		// parse multipartForm values
+		form, err := c.Request().MultipartForm()
+		if err == nil {
+			for key,val := range form.Value {
+				if len(val) > 0{
+					params[key] = val[0]
+				}
+			}
+		}
+
 
 		for key, val := range params {
 			switch strings.ToLower(string(key)) {
