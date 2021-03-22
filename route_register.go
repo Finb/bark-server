@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/mritd/logger"
 	"go.etcd.io/bbolt"
+	"github.com/lithammer/shortuuid/v3"
 )
 
 type DeviceInfo struct {
@@ -64,7 +65,7 @@ func doRegister(c *fiber.Ctx, compat bool) error {
 		// it is considered as a new device registration
 		if deviceInfo.DeviceKey == "" || bucket.Get([]byte(deviceInfo.DeviceKey)) == nil {
 			// Generate a new UUID as the deviceKey when a new device register
-			deviceInfo.DeviceKey = RandStringBytesMaskImprSrc(16)
+			deviceInfo.DeviceKey = shortuuid.New()
 		}
 
 		// update the deviceToken
