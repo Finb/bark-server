@@ -5,6 +5,7 @@ import (
 	"crypto/x509"
 	"fmt"
 	"net/http"
+	"runtime"
 	"strings"
 	"time"
 
@@ -22,7 +23,7 @@ type PushMessage struct {
 	Title       string `form:"title,omitempty" json:"title,omitempty" xml:"title,omitempty" query:"title,omitempty"`
 	Body        string `form:"body,omitempty" json:"body,omitempty" xml:"body,omitempty" query:"body,omitempty"`
 	// ios notification sound(system sound please refer to http://iphonedevwiki.net/index.php/AudioServices)
-	Sound     string            `form:"sound,omitempty" json:"sound,omitempty" xml:"sound,omitempty" query:"sound,omitempty"`
+	Sound     string                 `form:"sound,omitempty" json:"sound,omitempty" xml:"sound,omitempty" query:"sound,omitempty"`
 	ExtParams map[string]interface{} `form:"ext_params,omitempty" json:"ext_params,omitempty" xml:"ext_params,omitempty" query:"ext_params,omitempty"`
 }
 
@@ -40,7 +41,16 @@ func init() {
 		logger.Fatalf("failed to create APNS auth key: %v", err)
 	}
 
-	rootCAs, _ := x509.SystemCertPool()
+	var rootCAs *x509.CertPool
+	if runtime.GOOS == "windows" {
+		rootCAs = x509.NewCertPool()
+	} else {
+		rootCAs, err = x509.SystemCertPool()
+		if err != nil {
+			logger.Fatalf("failed to get rootCAs: %v", err)
+		}
+	}
+
 	for _, ca := range apnsCAs {
 		rootCAs.AppendCertsFromPEM([]byte(ca))
 	}
