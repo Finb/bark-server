@@ -6,7 +6,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/gofiber/fiber/v2 v2.9.0
 	github.com/json-iterator/go v1.1.11
-	github.com/lithammer/shortuuid/v3 v3.0.6
+	github.com/lithammer/shortuuid/v3 v3.0.7
 	github.com/mritd/logger v0.0.5
 	github.com/sideshow/apns2 v0.20.0
 	github.com/urfave/cli/v2 v2.3.0
