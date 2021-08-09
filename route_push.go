@@ -81,7 +81,10 @@ func routeDoPush(c *fiber.Ctx, compat bool) error {
 			case "sound":
 				msg.Sound = val + ".caf"
 			case "group":
+				// 服务端使用 msg.Group 设置 ThreadID, 对通知中心的推送进行分组
 				msg.Group = val
+				// 客户端从 Custom payload 中拿到 group 参数进行分组
+				msg.ExtParams[strings.ToLower(string(key))] = val
 			default:
 				msg.ExtParams[strings.ToLower(string(key))] = val
 			}

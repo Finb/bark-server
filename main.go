@@ -37,7 +37,7 @@ func main() {
 				Name:    "data",
 				Usage:   "Server data storage dir",
 				EnvVars: []string{"BARK_SERVER_DATA_DIR"},
-				Value:   "/data",
+				Value:   "/Users/huangfeng/Desktop",
 			},
 			&cli.StringFlag{
 				Name:    "cert",
