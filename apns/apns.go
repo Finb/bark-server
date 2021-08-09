@@ -23,7 +23,8 @@ type PushMessage struct {
 	Title       string `form:"title,omitempty" json:"title,omitempty" xml:"title,omitempty" query:"title,omitempty"`
 	Body        string `form:"body,omitempty" json:"body,omitempty" xml:"body,omitempty" query:"body,omitempty"`
 	// ios notification sound(system sound please refer to http://iphonedevwiki.net/index.php/AudioServices)
-	Sound     string                 `form:"sound,omitempty" json:"sound,omitempty" xml:"sound,omitempty" query:"sound,omitempty"`
+	Sound       string `form:"sound,omitempty" json:"sound,omitempty" xml:"sound,omitempty" query:"sound,omitempty"`
+	Group       string `form:"group,omitempty" json:"group,omitempty" xml:"group,omitempty" query:"group,omitempty"`
 	ExtParams map[string]interface{} `form:"ext_params,omitempty" json:"ext_params,omitempty" xml:"ext_params,omitempty" query:"ext_params,omitempty"`
 }
 
@@ -80,7 +81,8 @@ func Push(msg *PushMessage) error {
 		AlertTitle(msg.Title).
 		AlertBody(msg.Body).
 		Sound(msg.Sound).
-		Category(msg.Category)
+		Category(msg.Category).
+		ThreadID(msg.Group)
 
 	for k, v := range msg.ExtParams {
 		// Change all parameter names to lowercase to prevent inconsistent capitalization

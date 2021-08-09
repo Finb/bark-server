@@ -80,6 +80,8 @@ func routeDoPush(c *fiber.Ctx, compat bool) error {
 				msg.Body = val
 			case "sound":
 				msg.Sound = val + ".caf"
+			case "group":
+				msg.Group = val
 			default:
 				msg.ExtParams[strings.ToLower(string(key))] = val
 			}
