@@ -26,7 +26,8 @@ RUN [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
 
 RUN set -ex \
     && apk upgrade \
-    && apk add ca-certificates
+    && apk add --no-cache ca-certificates \
+    && apk cache clean
 
 COPY --from=builder /go/bin/bark-server /usr/local/bin/bark-server
 
