@@ -1,15 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"net/url"
 	"strings"
 
 	"github.com/finb/bark-server/v2/apns"
 
 	"github.com/gofiber/fiber/v2"
-
-	"go.etcd.io/bbolt"
 )
 
 func init() {
@@ -60,13 +57,12 @@ func routeDoPush(c *fiber.Ctx, compat bool) error {
 		// parse multipartForm values
 		form, err := c.Request().MultipartForm()
 		if err == nil {
-			for key,val := range form.Value {
-				if len(val) > 0{
+			for key, val := range form.Value {
+				if len(val) > 0 {
 					params[key] = val[0]
 				}
 			}
 		}
-
 
 		for key, val := range params {
 			switch strings.ToLower(string(key)) {
@@ -121,17 +117,11 @@ func routeDoPush(c *fiber.Ctx, compat bool) error {
 		return c.Status(400).JSON(failed(400, "device key is empty"))
 	}
 
-	err := db.View(func(tx *bbolt.Tx) error {
-		if bs := tx.Bucket([]byte(bucketName)).Get([]byte(msg.DeviceKey)); bs == nil {
-			return fmt.Errorf("failed to get [%s] device token from database", msg.DeviceKey)
-		} else {
-			msg.DeviceToken = string(bs)
-			return nil
-		}
-	})
+	deviceToken, err := db.DeviceTokenByKey(msg.DeviceKey)
 	if err != nil {
 		return c.Status(400).JSON(failed(400, "failed to get device token: %v", err))
 	}
+	msg.DeviceToken = deviceToken
 
 	err = apns.Push(&msg)
 	if err != nil {
