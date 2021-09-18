@@ -133,6 +133,10 @@ server {
 }
 ```
 
+### Use MySQL instead of Bbolt
+
+Just run the server with `-dsn=user:pass@tcp(mysql_host)/bark`, it will use MySQL instead of file database Bbolt
+
 ## API V2
 
 Please read [API_V2.md](docs/API_V2.md).
