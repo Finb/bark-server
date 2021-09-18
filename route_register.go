@@ -1,12 +1,8 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/mritd/logger"
-	"go.etcd.io/bbolt"
-	"github.com/lithammer/shortuuid/v3"
 )
 
 type DeviceInfo struct {
@@ -17,10 +13,6 @@ type DeviceInfo struct {
 	OldDeviceKey   string `form:"key,omitempty" json:"key,omitempty" xml:"key,omitempty" query:"key,omitempty"`
 	OldDeviceToken string `form:"devicetoken,omitempty" json:"devicetoken,omitempty" xml:"devicetoken,omitempty" query:"devicetoken,omitempty"`
 }
-
-const (
-	bucketName = "device"
-)
 
 func init() {
 	registerRoute("register", func(router *fiber.App) {
@@ -58,20 +50,7 @@ func doRegister(c *fiber.Ctx, compat bool) error {
 		}
 	}
 
-	err := db.Update(func(tx *bbolt.Tx) error {
-		bucket := tx.Bucket([]byte(bucketName))
-
-		// If the deviceKey is empty or the corresponding deviceToken cannot be obtained from the database,
-		// it is considered as a new device registration
-		if deviceInfo.DeviceKey == "" || bucket.Get([]byte(deviceInfo.DeviceKey)) == nil {
-			// Generate a new UUID as the deviceKey when a new device register
-			deviceInfo.DeviceKey = shortuuid.New()
-		}
-
-		// update the deviceToken
-		return bucket.Put([]byte(deviceInfo.DeviceKey), []byte(deviceInfo.DeviceToken))
-	})
-
+	err := db.SaveDeviceTokenByKey(deviceInfo.DeviceKey, deviceInfo.DeviceToken)
 	if err != nil {
 		logger.Errorf("device registration failed: %v", err)
 		return c.Status(500).JSON(failed(500, "device registration failed: %v", err))
@@ -92,12 +71,7 @@ func doRegisterCheck(c *fiber.Ctx) error {
 		return c.Status(400).JSON(failed(400, "device key is empty"))
 	}
 
-	err := db.View(func(tx *bbolt.Tx) error {
-		if bs := tx.Bucket([]byte(bucketName)).Get([]byte(deviceKey)); bs == nil {
-			return fmt.Errorf("device not registered")
-		}
-		return nil
-	})
+	_, err := db.DeviceTokenByKey(deviceKey)
 	if err != nil {
 		return c.Status(400).JSON(failed(400, err.Error()))
 	}

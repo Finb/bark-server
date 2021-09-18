@@ -4,8 +4,6 @@ import (
 	"runtime"
 	"time"
 
-	"go.etcd.io/bbolt"
-
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -28,11 +26,7 @@ func init() {
 
 		// info func returns information about the server version
 		router.Get("/info", func(c *fiber.Ctx) error {
-			var devices int
-			_ = db.View(func(tx *bbolt.Tx) error {
-				devices = tx.Bucket([]byte(bucketName)).Stats().KeyN
-				return nil
-			})
+			devices, _ := db.CountAll()
 			return c.JSON(map[string]interface{}{
 				"version": version,
 				"build":   buildDate,

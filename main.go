@@ -7,6 +7,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/finb/bark-server/v2/database"
+
 	jsoniter "github.com/json-iterator/go"
 
 	"github.com/gofiber/fiber/v2"
@@ -20,6 +22,8 @@ var (
 	buildDate string
 	commitID  string
 )
+
+var db database.Database
 
 func main() {
 	app := &cli.App{
@@ -147,7 +151,8 @@ func main() {
 
 			routerAuth(c.String("user"), c.String("password"), fiberApp)
 			routerSetup(fiberApp)
-			bboltSetup(c.String("data"))
+
+			db = database.NewBboltdb(c.String("data"))
 
 			go func() {
 				sigs := make(chan os.Signal)
