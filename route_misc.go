@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	registerRoute("misc", func(router *fiber.App) {
+	registerRoute("misc", func(router fiber.Router) {
 		// ping func only returns a "pong" string, usually used to test server response
 		router.Get("/ping", func(c *fiber.Ctx) error {
 			return c.JSON(CommonResp{
