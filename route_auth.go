@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func routerAuth(user, passwd string, router *fiber.App) {
+func routerAuth(user, passwd string, router fiber.Router) {
 	if user != "" && passwd != "" {
 		logger.Info("Bark Server Has Basic Auth Enabled.")
 		basicAuth := fiberbasicauth.New(fiberbasicauth.Config{
@@ -15,7 +15,7 @@ func routerAuth(user, passwd string, router *fiber.App) {
 			Realm: "Coffee Time",
 			Unauthorized: func(c *fiber.Ctx) error {
 				authFreeRouters := []string{"/ping", "/register", "/healthz"}
-				for _, item := range authFreeRouters{
+				for _, item := range authFreeRouters {
 					if strings.HasPrefix(c.Path(), item) {
 						return c.Next()
 					}

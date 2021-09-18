@@ -26,7 +26,7 @@ type CommonResp struct {
 type routerFunc struct {
 	Name   string
 	Weight int
-	Func   func(router *fiber.App)
+	Func   func(router fiber.Router)
 }
 
 type routeSlice []routerFunc
@@ -43,12 +43,12 @@ var routes routeSlice
 // register new route with key name
 // key name is used to eliminate duplicate routes
 // key name not case sensitive
-func registerRoute(name string, f func(router *fiber.App)) {
+func registerRoute(name string, f func(router fiber.Router)) {
 	registerRouteWithWeight(name, 50, f)
 }
 
 // register new route with weight
-func registerRouteWithWeight(name string, weight int, f func(router *fiber.App)) {
+func registerRouteWithWeight(name string, weight int, f func(router fiber.Router)) {
 	if weight > 100 || weight < 0 {
 		logger.Fatalf("route [%s] weight must be >= 0 and <=100", name)
 	}
@@ -66,7 +66,7 @@ func registerRouteWithWeight(name string, weight int, f func(router *fiber.App))
 	})
 }
 
-func routerSetup(router *fiber.App) {
+func routerSetup(router fiber.Router) {
 	routerOnce.Do(func() {
 		router.Use(fiberlogger.New(fiberlogger.Config{
 			Format:     "${time}     INFO    ${ip} -> [${status}] ${method} ${latency} ${route} => ${url} ${body}\n",

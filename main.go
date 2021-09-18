@@ -38,6 +38,12 @@ func main() {
 				Value:   "0.0.0.0:8080",
 			},
 			&cli.StringFlag{
+				Name:    "url-prefix",
+				Usage:   "Serve URL Prefix",
+				EnvVars: []string{"BARK_SERVER_URL_PREFIX"},
+				Value:   "/",
+			},
+			&cli.StringFlag{
 				Name:    "data",
 				Usage:   "Server data storage dir",
 				EnvVars: []string{"BARK_SERVER_DATA_DIR"},
@@ -155,8 +161,9 @@ func main() {
 				},
 			})
 
-			routerAuth(c.String("user"), c.String("password"), fiberApp)
-			routerSetup(fiberApp)
+			fiberRouter := fiberApp.Group(c.String("url-prefix"))
+			routerAuth(c.String("user"), c.String("password"), fiberRouter)
+			routerSetup(fiberRouter)
 
 			if dsn := c.String("dsn"); dsn != "" {
 				db = database.NewMySQL(dsn)
