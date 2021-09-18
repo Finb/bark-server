@@ -44,6 +44,12 @@ func main() {
 				Value:   "/data",
 			},
 			&cli.StringFlag{
+				Name:    "dsn",
+				Usage:   "MySQL DSN",
+				EnvVars: []string{"BARK_SERVER_DSN"},
+				Value:   "",
+			},
+			&cli.StringFlag{
 				Name:    "cert",
 				Usage:   "Server TLS certificate",
 				EnvVars: []string{"BARK_SERVER_CERT"},
@@ -152,7 +158,11 @@ func main() {
 			routerAuth(c.String("user"), c.String("password"), fiberApp)
 			routerSetup(fiberApp)
 
-			db = database.NewBboltdb(c.String("data"))
+			if dsn := c.String("dsn"); dsn != "" {
+				db = database.NewMySQL(dsn)
+			} else {
+				db = database.NewBboltdb(c.String("data"))
+			}
 
 			go func() {
 				sigs := make(chan os.Signal)
