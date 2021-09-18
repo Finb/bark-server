@@ -45,7 +45,7 @@ func main() {
 			},
 			&cli.StringFlag{
 				Name:    "dsn",
-				Usage:   "MySQL DSN",
+				Usage:   "MySQL DSN user:pass@tcp(host)/dbname",
 				EnvVars: []string{"BARK_SERVER_DSN"},
 				Value:   "",
 			},
