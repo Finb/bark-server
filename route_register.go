@@ -30,11 +30,11 @@ func doRegister(c *fiber.Ctx, compat bool) error {
 	var deviceInfo DeviceInfo
 	if compat {
 		if err := c.QueryParser(&deviceInfo); err != nil {
-			return c.Status(400).JSON(failed(400, "request bind failed: %v", err))
+			return c.Status(400).JSON(failed(400, "request bind failed1: %v", err))
 		}
 	} else {
 		if err := c.BodyParser(&deviceInfo); err != nil {
-			return c.Status(400).JSON(failed(400, "request bind failed: %v", err))
+			return c.Status(400).JSON(failed(400, "request bind failed2: %v", err))
 		}
 	}
 
@@ -50,11 +50,14 @@ func doRegister(c *fiber.Ctx, compat bool) error {
 		}
 	}
 
-	err := db.SaveDeviceTokenByKey(deviceInfo.DeviceKey, deviceInfo.DeviceToken)
+	// if deviceInfo.DeviceKey=="", newKey will be filled with a new uuid
+	// otherwise it equal to deviceInfo.DeviceKey
+	newKey, err := db.SaveDeviceTokenByKey(deviceInfo.DeviceKey, deviceInfo.DeviceToken)
 	if err != nil {
 		logger.Errorf("device registration failed: %v", err)
 		return c.Status(500).JSON(failed(500, "device registration failed: %v", err))
 	}
+	deviceInfo.DeviceKey = newKey
 
 	return c.Status(200).JSON(data(map[string]string{
 		// compatible with old resp
