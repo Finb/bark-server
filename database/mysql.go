@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/lithammer/shortuuid/v3"
 	"github.com/mritd/logger"
 )
 
@@ -58,13 +59,18 @@ func (d *MySQL) DeviceTokenByKey(key string) (string, error) {
 	return token, nil
 }
 
-func (d *MySQL) SaveDeviceTokenByKey(key, token string) error {
-	_, err := mysqlDB.Exec("INSERT INTO `devices` (`key`,`token`) VALUES (?,?) ON DUPLICATE KEY UPDATE `token`=?", key, token, token)
-	if err != nil {
-		return err
+func (d *MySQL) SaveDeviceTokenByKey(key, token string) (string, error) {
+	if key == "" {
+		// Generate a new UUID as the deviceKey when a new device register
+		key = shortuuid.New()
 	}
 
-	return nil
+	_, err := mysqlDB.Exec("INSERT INTO `devices` (`key`,`token`) VALUES (?,?) ON DUPLICATE KEY UPDATE `token`=?", key, token, token)
+	if err != nil {
+		return "", err
+	}
+
+	return key, nil
 }
 
 func (d *MySQL) Close() error {

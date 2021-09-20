@@ -67,7 +67,7 @@ func (d *BboltDB) DeviceTokenByKey(key string) (string, error) {
 }
 
 // SaveDeviceToken create or update device token of specified key
-func (d *BboltDB) SaveDeviceTokenByKey(key, deviceToken string) error {
+func (d *BboltDB) SaveDeviceTokenByKey(key, deviceToken string) (string, error) {
 	err := db.Update(func(tx *bbolt.Tx) error {
 		bucket := tx.Bucket([]byte(bucketName))
 
@@ -83,10 +83,10 @@ func (d *BboltDB) SaveDeviceTokenByKey(key, deviceToken string) error {
 	})
 
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return key, nil
 }
 
 // bboltSetup setup the bbolt database
