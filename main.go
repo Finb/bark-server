@@ -162,6 +162,10 @@ func main() {
 				},
 			})
 
+			fiberApp.Get("/", func(ctx *fiber.Ctx) error {
+				return ctx.SendString("Hello, Bark Server ")
+			})
+
 			fiberRouter := fiberApp.Group(c.String("url-prefix"))
 			routerAuth(c.String("user"), c.String("password"), fiberRouter)
 			routerSetup(fiberRouter)
