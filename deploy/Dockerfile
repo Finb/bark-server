@@ -26,7 +26,9 @@ RUN [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
 
 RUN set -ex \
     && apk upgrade \
-    && apk add --no-cache ca-certificates
+    && apk add --no-cache ca-certificates tzdata \
+    && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+    && apk del tzdata
 
 COPY --from=builder /go/bin/bark-server /usr/local/bin/bark-server
 
