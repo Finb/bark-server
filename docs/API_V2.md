@@ -25,9 +25,12 @@ curl -X "POST" "http://127.0.0.1:8080/push" \
      -H 'Content-Type: application/json; charset=utf-8' \
      -d $'{
   "body": "Test Bark Server",
-  "device_key": "nysrshcqielvoxsa",
+  "device_key": "JnJ5FtCatkMkWeodPAvFkF",
   "title": "bleem",
   "ext_params": {
+    "badge": 1,
+    "icon": "https://day.app/assets/images/avatar.jpg",
+    "group": "test",
     "url": "https://mritd.com"
   },
   "category": "category",
@@ -50,7 +53,7 @@ import (
 func sendPush() {
 	// push (POST http://127.0.0.1:8080/push)
 
-	json := []byte(`{"body": "Test Bark Server","device_key": "nysrshcqielvoxsa","title": "bleem","ext_params": {"url": "https://mritd.com"},"category": "category","sound": "minuet.caf"}`)
+	json := []byte(`{"body": "Test Bark Server","device_key": "nysrshcqielvoxsa","title": "bleem","ext_params": {"badge": 1, "icon": "https://day.app/assets/images/avatar.jpg", "group": "test", "url": "https://mritd.com"},"category": "category","sound": "minuet.caf"}`)
 	body := bytes.NewBuffer(json)
 
 	// Create client
@@ -107,7 +110,10 @@ def send_request():
                 "device_key": "nysrshcqielvoxsa",
                 "title": "bleem",
                 "ext_params": {
-                    "url": "https://mritd.com"
+                        "badge": 1,
+                        "icon": "https://day.app/assets/images/avatar.jpg",
+                        "group": "test",
+                        "url": "https://mritd.com"
                 },
                 "category": "category",
                 "sound": "minuet.caf"
@@ -147,7 +153,7 @@ public class SendRequest
       .addHeader("Content-Type", "application/json; charset=utf-8")
       
       // Add body
-      .bodyString("{\"body\": \"Test Bark Server\",\"device_key\": \"nysrshcqielvoxsa\",\"title\": \"bleem\",\"ext_params\": {\"url\": \"https://mritd.com\"},\"category\": \"category\",\"sound\": \"minuet.caf\"}", ContentType.APPLICATION_JSON)
+      .bodyString("{\"body\": \"Test Bark Server\",\"device_key\": \"nysrshcqielvoxsa\",\"title\": \"bleem\",\"ext_params\": {\"url\": \"https://mritd.com\", \"group\": \"test\", \"url\": \"https://mritd.com\"},\"category\": \"category\",\"sound\": \"minuet.caf\"}", ContentType.APPLICATION_JSON)
       
       // Fetch request and return content
       .execute().returnContent();
@@ -204,7 +210,7 @@ public class SendRequest
     .on('error', (error) => {
         callback(error);
     });
-    request.write("{\"device_key\":\"nysrshcqielvoxsa\",\"body\":\"Test Bark Server\",\"title\":\"bleem\",\"sound\":\"minuet.caf\",\"category\":\"category\",\"ext_params\":{\"url\":\"https://mritd.com\"}}")
+    request.write("{\"device_key\":\"nysrshcqielvoxsa\",\"body\":\"Test Bark Server\",\"title\":\"bleem\",\"sound\":\"minuet.caf\",\"category\":\"category\",\"ext_params\":{\"url\":\"https://mritd.com\", \"group\":\"test\"}}")
     request.end();
     
 
