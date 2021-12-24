@@ -94,6 +94,8 @@ func push(c *fiber.Ctx, params map[string]interface{}) error {
 			for k, v := range val {
 				msg.ExtParams[k] = v
 			}
+		default:
+			msg.ExtParams[key] = val
 		}
 	}
 
