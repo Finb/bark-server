@@ -86,7 +86,12 @@ func push(c *fiber.Ctx, params map[string]interface{}) error {
 			case "body":
 				msg.Body = val
 			case "sound":
-				msg.Sound = val + ".caf"
+				// Compatible with old parameters
+				if strings.HasSuffix(val, ".caf") {
+					msg.Sound = val
+				} else {
+					msg.Sound = val + ".caf"
+				}
 			default:
 				msg.ExtParams[strings.ToLower(string(key))] = val
 			}
