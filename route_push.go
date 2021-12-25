@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gofiber/fiber/v2/utils"
 	"net/url"
 	"strings"
 
@@ -12,7 +13,7 @@ import (
 func init() {
 	// V2 API
 	registerRoute("push", func(router fiber.Router) {
-		router.Post("/push", func(c *fiber.Ctx) error { return routeDoPushV2(c) })
+		router.Post("/push", func(c *fiber.Ctx) error { return routeDoPush(c) })
 	})
 
 	// compatible with old requests
@@ -32,8 +33,15 @@ func init() {
 }
 
 func routeDoPush(c *fiber.Ctx) error {
-	params := make(map[string]interface{})
+	// Get content-type
+	contentType := utils.ToLower(utils.UnsafeString(c.Request().Header.ContentType()))
+	contentType = utils.ParseVendorSpecificContentType(contentType)
+	// Json request uses the API V2
+	if strings.HasPrefix(contentType, "application/json") {
+		return routeDoPushV2(c)
+	}
 
+	params := make(map[string]interface{})
 	visitor := func(key, value []byte) {
 		params[strings.ToLower(string(key))] = string(value)
 	}
