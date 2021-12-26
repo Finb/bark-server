@@ -69,6 +69,10 @@ func routeDoPushV2(c *fiber.Ctx) error {
 	if err := c.BodyParser(&params); err != nil && err != fiber.ErrUnprocessableEntity {
 		return c.Status(400).JSON(failed(400, "request bind failed: %v", err))
 	}
+	// parse query args (medium priority)
+	c.Request().URI().QueryArgs().VisitAll(func(key, value []byte){
+		params[strings.ToLower(string(key))] = string(value)
+	})
 	return push(c, params)
 }
 
