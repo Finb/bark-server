@@ -25,7 +25,7 @@
 
 ### For Docker User
 
-![Docker Automated build](https://img.shields.io/docker/automated/finab/bark-server.svg) ![MicroBadger Size](https://img.shields.io/microbadger/image-size/finab/bark-server.svg) ![MicroBadger Layers](https://img.shields.io/microbadger/layers/finab/bark-server.svg)
+![Docker Automated build](https://img.shields.io/docker/automated/finab/bark-server.svg) ![Image Size](https://img.shields.io/docker/image-size/finab/bark-server?sort=date) ![License](https://img.shields.io/github/license/finb/bark-server)
 
 The docker image is already available, you can use the following command to run the bark server:
 
