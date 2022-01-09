@@ -11,6 +11,7 @@ the V2 version.**
         + [python](#python)
         + [java](#java)
         + [nodejs](#nodejs)
+        + [php](#php)
     * [Misc](#misc)
         + [Ping](#ping)
         + [Healthz](#healthz)
@@ -216,6 +217,33 @@ public class SendRequest
     console.log('HEADERS:', JSON.stringify(headers));
     console.log('BODY:', body);
 });
+```
+
+### php
+
+```php
+$curl = curl_init();
+curl_setopt_array($curl, [
+    CURLOPT_URL => 'http://127.0.0.1:8080/push',
+    CURLOPT_CUSTOMREQUEST => 'POST',
+    CURLOPT_POSTFIELDS => '{
+  "body": "Test Bark Server",
+  "device_key": "ynJ5Ft4atkMkWeo2PAvFhF",
+  "title": "bleem",
+  "badge": 1,
+  "category": "category",
+  "sound": "minuet.caf",
+  "icon": "https://day.app/assets/images/avatar.jpg",
+  "group": "test",
+  "url": "https://mritd.com"
+}',
+    CURLOPT_HTTPHEADER => [
+        'Content-Type: application/json; charset=utf-8',
+    ],
+]);
+$response = curl_exec($curl);
+curl_close($curl);
+echo $response;
 ```
 
 ## Misc
