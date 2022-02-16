@@ -19,6 +19,21 @@ the V2 version.**
     
 ## Push
 
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| title | string | Notification title (font size would be larger than the body) |
+| body  | string | Notification content |
+| category | string | Reserved field, no use yet |
+| device_key | string | The key for each device |
+| level (optional) | string | `'active'`, `'timeSensitive'`, or `'passive'` |
+| badge (optional) | integer | The number displayed next to App icon ([Apple Developer](https://developer.apple.com/documentation/usernotifications/unnotificationcontent/1649864-badge)) |
+| automaticallyCopy (optional) | string | Must be `1` |
+| copy (optional) | string |  The value to be copied |
+| sound (optional) | string | Value from [here](https://github.com/Finb/Bark/tree/master/Sounds) |
+| icon (optional) | string | An url to the icon, available only on iOS 15 or later |
+| group (optional) | string | The group of the notification |
+| isArchive (optional) | string | Value must be `1`. Whether or not should be archived by the app |
+
 ### curl
 
 ```sh
