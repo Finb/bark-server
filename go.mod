@@ -9,7 +9,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.29.0
 	github.com/json-iterator/go v1.1.12
 	github.com/lithammer/shortuuid/v3 v3.0.7
-	github.com/mritd/logger v0.0.5
+	github.com/mritd/logger v0.0.6
 	github.com/sideshow/apns2 v0.20.0
 	github.com/urfave/cli/v2 v2.4.0
 	go.etcd.io/bbolt v1.3.5
@@ -28,10 +28,9 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.34.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
-	go.uber.org/atomic v1.7.0 // indirect
-	go.uber.org/multierr v1.6.0 // indirect
-	go.uber.org/zap v1.16.0 // indirect
+	go.uber.org/atomic v1.9.0 // indirect
+	go.uber.org/multierr v1.7.0 // indirect
+	go.uber.org/zap v1.20.0 // indirect
 	golang.org/x/sys v0.0.0-20220227234510-4e6760a101f9 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	golang.org/x/tools v0.0.0-20191216052735-49a3e744a425 // indirect
 )
