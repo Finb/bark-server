@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"reflect"
 	"syscall"
 	"time"
 
@@ -54,6 +55,12 @@ func main() {
 				Usage:   "MySQL DSN user:pass@tcp(host)/dbname",
 				EnvVars: []string{"BARK_SERVER_DSN"},
 				Value:   "",
+			},
+			&cli.BoolFlag{
+				Name:    "serverless",
+				Usage:   "serverless mode",
+				EnvVars: []string{"BARK_SERVER_SERVERLESS"},
+				Value:   false,
 			},
 			&cli.StringFlag{
 				Name:    "cert",
@@ -166,7 +173,10 @@ func main() {
 			routerAuth(c.String("user"), c.String("password"), fiberRouter)
 			routerSetup(fiberRouter)
 
-			if dsn := c.String("dsn"); dsn != "" {
+			if serverless := c.Bool("serverless"); serverless {
+				// use system environment variable.
+				db = database.NewEnvBase()
+			} else if dsn := c.String("dsn"); dsn != "" {
 				db = database.NewMySQL(dsn)
 			} else {
 				db = database.NewBboltdb(c.String("data"))
@@ -186,7 +196,7 @@ func main() {
 				}
 			}()
 
-			logger.Infof("Bark Server Listen at: %s", c.String("addr"))
+			logger.Infof("Bark Server Listen at: %s , Database: %s", c.String("addr"), reflect.TypeOf(db))
 			if cert, key := c.String("cert"), c.String("key"); cert != "" && key != "" {
 				return fiberApp.ListenTLS(c.String("addr"), cert, key)
 			}

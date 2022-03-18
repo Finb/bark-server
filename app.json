@@ -1,0 +1,16 @@
+{
+  "name": "bark-server",
+  "description": "Backend of Bark",
+  "env": {
+    "BARK_KEY": {
+      "description": "Bark Key",
+      "value": ""
+    },
+    "BARK_DEVICE_TOKEN": {
+      "description": "APNS DeviceToken",
+      "value": ""
+    }
+  },
+  "website": "https://bark.day.app",
+  "repository": "https://github.com/finb/bark-server"
+}
