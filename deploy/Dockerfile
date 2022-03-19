@@ -1,4 +1,4 @@
-FROM golang:1.16-alpine AS builder
+FROM golang:1.17-alpine AS builder
 
 COPY . /go/src/github.com/finb/bark-server
 
@@ -15,7 +15,7 @@ RUN set -ex \
              -X 'main.commitID=${COMMIT_SHA1}' \
              -w -s"
 
-FROM alpine:3.13
+FROM alpine:3.15
 
 LABEL maintainer="mritd <mritd@linux.com>"
 
