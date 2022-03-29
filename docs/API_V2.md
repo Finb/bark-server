@@ -33,6 +33,7 @@ the V2 version.**
 | icon (optional) | string | An url to the icon, available only on iOS 15 or later |
 | group (optional) | string | The group of the notification |
 | isArchive (optional) | string | Value must be `1`. Whether or not should be archived by the app |
+| url (optional) | string | Url that will jump when click notification |
 
 ### curl
 
