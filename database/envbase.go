@@ -24,7 +24,10 @@ func (d *EnvBase) DeviceTokenByKey(key string) (string, error) {
 }
 
 func (d *EnvBase) SaveDeviceTokenByKey(key, token string) (string, error) {
-	return os.Getenv("BARK_KEY"), nil
+	if token == os.Getenv("BARK_DEVICE_TOKEN") {
+		return os.Getenv("BARK_KEY"), nil
+	}
+	return "nil", fmt.Errorf("device token is invalid")
 }
 
 func (d *EnvBase) Close() error {
