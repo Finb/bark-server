@@ -15,7 +15,7 @@ RUN set -ex \
              -X 'main.commitID=${COMMIT_SHA1}' \
              -w -s"
 
-FROM alpine:3.15
+FROM alpine:3.16.0
 
 LABEL maintainer="mritd <mritd@linux.com>"
 
