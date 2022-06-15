@@ -24,10 +24,13 @@ LABEL maintainer="mritd <mritd@linux.com>"
 # - docker run --rm debian:stretch grep '^hosts:' /etc/nsswitch.conf
 RUN [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
 
+ENV TZ Asia/Shanghai
+
 RUN set -ex \
     && apk upgrade \
     && apk add --no-cache ca-certificates tzdata \
-    && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+    && cp /usr/share/zoneinfo/${TZ} /etc/localtime \
+    && echo ${TZ} > /etc/timezone \
     && apk del tzdata
 
 COPY --from=builder /go/bin/bark-server /usr/local/bin/bark-server
