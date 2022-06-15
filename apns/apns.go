@@ -28,9 +28,10 @@ type PushMessage struct {
 }
 
 const (
-	topic  = "me.fin.bark"
-	keyID  = "LH4T9V5U4R"
-	teamID = "5U8LBRXG3A"
+	topic          = "me.fin.bark"
+	keyID          = "LH4T9V5U4R"
+	teamID         = "5U8LBRXG3A"
+	PayloadMaximum = 4096
 )
 
 var cli *apns2.Client
@@ -90,6 +91,13 @@ func Push(msg *PushMessage) error {
 	for k, v := range msg.ExtParams {
 		// Change all parameter names to lowercase to prevent inconsistent capitalization
 		pl.Custom(strings.ToLower(k), fmt.Sprintf("%v", v))
+	}
+
+	// JSON payload maximum size of 4 KB (4096 bytes)
+	// https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/sending_notification_requests_to_apns#2947607
+	payloadSize, _ := pl.MarshalJSON()
+	if len(payloadSize) > PayloadMaximum {
+		return fmt.Errorf("APNS Push Msg Payload too Large %d > 4096 bytes", len(payloadSize))
 	}
 
 	resp, err := cli.Push(&apns2.Notification{
