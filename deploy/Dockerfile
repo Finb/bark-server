@@ -1,4 +1,4 @@
-FROM golang:1.17-alpine AS builder
+FROM golang:1-alpine AS builder
 
 COPY . /go/src/github.com/finb/bark-server
 
@@ -15,7 +15,7 @@ RUN set -ex \
              -X 'main.commitID=${COMMIT_SHA1}' \
              -w -s"
 
-FROM alpine:3.15
+FROM alpine
 
 LABEL maintainer="mritd <mritd@linux.com>"
 
@@ -24,25 +24,25 @@ LABEL maintainer="mritd <mritd@linux.com>"
 # - docker run --rm debian:stretch grep '^hosts:' /etc/nsswitch.conf
 RUN [ ! -e "/etc/nsswitch.conf" ] && echo 'hosts: files dns' > /etc/nsswitch.conf
 
-ARG TIMEZONE
+# default timezon
+# override it with `--build-arg TIMEZONE=xxxx`
+ARG TIMEZONE=Asia/Shanghai
+
 ENV TZ ${TIMEZONE}
 
 RUN set -ex \
     && apk upgrade \
-    && apk add --no-cache ca-certificates tzdata \
-    && cp /usr/share/zoneinfo/${TZ} /etc/localtime \
+    && apk add --no-cache bash ca-certificates tzdata \
+    && ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo ${TZ} > /etc/timezone
 
 COPY --from=builder /go/bin/bark-server /usr/local/bin/bark-server
-
 COPY --from=builder /go/src/github.com/finb/bark-server/deploy/entrypoint.sh /entrypoint.sh
-
-RUN chmod +x /entrypoint.sh
-
-ENTRYPOINT ["/entrypoint.sh"]
 
 VOLUME /data
 
 EXPOSE 8080
+
+ENTRYPOINT ["/entrypoint.sh"]
 
 CMD ["bark-server"]
