@@ -10,6 +10,4 @@ else
 	echo "Asia/Shanghai" > /etc/timezone
 fi
 
-/usr/local/bin/bark-server
-
-sleep infinity
+exec "$@"
