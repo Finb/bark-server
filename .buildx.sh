@@ -19,5 +19,5 @@ fi
 docker run --privileged --rm tonistiigi/binfmt --install all
 docker buildx create --name bark-server --driver docker-container
 docker buildx use bark-server
-docker buildx build --platform linux/arm,linux/arm64,linux/386,linux/amd64 -t finab/bark-server:${BUILD_VERSION} -f deploy/Dockerfile --push .
-docker buildx build --platform linux/arm,linux/arm64,linux/386,linux/amd64 -t finab/bark-server -f deploy/Dockerfile --push .
+docker buildx build --platform linux/arm,linux/arm64,linux/386,linux/amd64 -t finab/bark-server:${BUILD_VERSION} -f deploy/Dockerfile --push . --build-arg TIMEZONE=Asia/Shanghai
+docker buildx build --platform linux/arm,linux/arm64,linux/386,linux/amd64 -t finab/bark-server -f deploy/Dockerfile --push . --build-arg TIMEZONE=Asia/Shanghai

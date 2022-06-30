@@ -6,7 +6,7 @@ all:
 	bash .cross_compile.sh bark-server
 
 docker:
-	cat deploy/Dockerfile | docker build -t finab/bark-server:${BUILD_VERSION} -f - .
+	cat deploy/Dockerfile | docker build -t finab/bark-server:${BUILD_VERSION} --build-arg TIMEZONE=Asia/Shanghai -f - .
 
 buildx:
 	bash .buildx.sh
