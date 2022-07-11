@@ -1,8 +1,8 @@
 name: Build And Push
 on:
   push:
-    branches:
-      - master
+    tags:        
+      - '*' 
       
 jobs:
   docker:
@@ -25,7 +25,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Environment Variable
         id: vars
-        run: echo "::set-output name=build_version::$(cat ./version)"
+        run: echo "::set-output name=build_version::$(git describe --tags)"
       -
         name: Build and push
         id: docker_build
