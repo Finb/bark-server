@@ -183,3 +183,7 @@ tasks:
       - task: windows_386.exe
       - task: windows_amd64.exe
       - task: windows_amd64_v3.exe
+  release:
+    cmds:
+      - task: default
+      - ghr -u finb -t $GITHUB_TOKEN -replace -recreate -name "Bump {{.BUILD_VERSION}}" --debug {{.BUILD_VERSION}} dist
