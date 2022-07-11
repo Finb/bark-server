@@ -54,19 +54,19 @@ docker-compose up -d
 
 Developers can compile this project by themselves, and the dependencies required for compilation:
 
-- Golang 1.16+
+- Golang 1.18+
 - Go Mod Enabled(env `GO111MODULE=on`)
 - Go Mod Proxy Enabled(env `GOPROXY=https://goproxy.cn`)
-- `make` Installed
+- [go-task](https://taskfile.dev/installation/) Installed
 
 Run the following command to compile this project:
 
 ```sh
 # Cross compile all platforms
-make
+task
 
-# Or install into the local GOPATH
-make install
+# Compile the specified platform (please refer to Taskfile.yaml)
+task linux_amd64
 ```
 
 ### Nginx Proxy
