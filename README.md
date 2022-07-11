@@ -67,7 +67,10 @@ task
 
 # Compile the specified platform (please refer to Taskfile.yaml)
 task linux_amd64
+task linux_amd64_v3
 ```
+
+**Note: The linux amd64 v3 architecture was added in go 1.18, see [https://github.com/golang/go/wiki/MinimumRequirements#amd64](https://github.com/golang/go/wiki/MinimumRequirements#amd64)**
 
 ### Nginx Proxy
 
