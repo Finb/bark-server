@@ -19,7 +19,8 @@ var dbOnce sync.Once
 var db *bbolt.DB
 
 const (
-	bucketName = "device"
+	bucketName           = "device"
+	MARKDOWN_BUCKET_NAME = "markdown"
 )
 
 func NewBboltdb(dataDir string) Database {
@@ -89,6 +90,35 @@ func (d *BboltDB) SaveDeviceTokenByKey(key, deviceToken string) (string, error) 
 	return key, nil
 }
 
+// Get Markdown Content by key
+func (d *BboltDB) GetMarkdownByKey(key string) (string, error) {
+	var markdown string
+	err := db.View(func(tx *bbolt.Tx) error {
+		if bs := tx.Bucket([]byte(MARKDOWN_BUCKET_NAME)).Get([]byte(key)); bs == nil {
+			return fmt.Errorf("failed to get [%s] markdown from database", key)
+		} else {
+			markdown = string(bs)
+			return nil
+		}
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return markdown, nil
+}
+
+// Save Markdown Content
+func (d *BboltDB) SaveMarkdown(content string) (string, error) {
+	key := shortuuid.New()
+	err := db.Update(func(tx *bbolt.Tx) error {
+		bucket := tx.Bucket([]byte(MARKDOWN_BUCKET_NAME))
+		// update the markdown
+		return bucket.Put([]byte(key), []byte(content))
+	})
+	return key, err
+}
+
 // bboltSetup setup the bbolt database
 func bboltSetup(dataDir string) {
 	dbOnce.Do(func() {
@@ -107,6 +137,10 @@ func bboltSetup(dataDir string) {
 		}
 		err = bboltDB.Update(func(tx *bbolt.Tx) error {
 			_, err := tx.CreateBucketIfNotExists([]byte(bucketName))
+			if err != nil {
+				return err
+			}
+			_, err = tx.CreateBucketIfNotExists([]byte(MARKDOWN_BUCKET_NAME))
 			return err
 		})
 		if err != nil {

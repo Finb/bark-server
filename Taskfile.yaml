@@ -16,6 +16,7 @@ tasks:
   copy-resource:
     cmds:
       - cp deploy/* dist
+      - cp -r web dist/web
   build-tpl:
     label: build-{{.TASK}}
     cmds:

@@ -73,6 +73,27 @@ func (d *MySQL) SaveDeviceTokenByKey(key, token string) (string, error) {
 	return key, nil
 }
 
+// Get Markdown Content by key
+func (d *MySQL) GetMarkdownByKey(key string) (string, error) {
+	var markdown string
+	err := mysqlDB.QueryRow("SELECT `content` FROM `markdown` WHERE `key`=? ", key).Scan(&markdown)
+	if err != nil {
+		return "", err
+	}
+	return markdown, nil
+}
+
+// Save Markdown Content
+func (d *MySQL) SaveMarkdown(content string) (string, error) {
+	key := shortuuid.New()
+	_, err := mysqlDB.Exec("INSERT INTO `markdown` (`key`,`content`) VALUES (?,?) ON DUPLICATE KEY UPDATE `content`=?", key, content, content)
+	if err != nil {
+		return "", err
+	}
+
+	return key, nil
+}
+
 func (d *MySQL) Close() error {
 	return mysqlDB.Close()
 }

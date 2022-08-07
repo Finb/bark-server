@@ -1,9 +1,11 @@
 package main
 
 import (
-	"github.com/gofiber/fiber/v2/utils"
 	"net/url"
 	"strings"
+
+	"github.com/gofiber/fiber/v2/utils"
+	"github.com/mritd/logger"
 
 	"github.com/finb/bark-server/v2/apns"
 
@@ -70,7 +72,7 @@ func routeDoPushV2(c *fiber.Ctx) error {
 		return c.Status(400).JSON(failed(400, "request bind failed: %v", err))
 	}
 	// parse query args (medium priority)
-	c.Request().URI().QueryArgs().VisitAll(func(key, value []byte){
+	c.Request().URI().QueryArgs().VisitAll(func(key, value []byte) {
 		params[strings.ToLower(string(key))] = string(value)
 	})
 	return push(c, params)
@@ -104,6 +106,9 @@ func push(c *fiber.Ctx, params map[string]interface{}) error {
 				} else {
 					msg.Sound = val + ".caf"
 				}
+			case "markdown":
+				msg.ExtParams["url"] = getMarkdownUrl(c, val)
+				delete(params, "url")
 			default:
 				msg.ExtParams[strings.ToLower(string(key))] = val
 			}
@@ -157,4 +162,15 @@ func push(c *fiber.Ctx, params map[string]interface{}) error {
 		return c.Status(500).JSON(failed(500, "push failed: %v", err))
 	}
 	return c.JSON(success())
+}
+
+func getMarkdownUrl(c *fiber.Ctx, content string) string {
+	key, err := db.SaveMarkdown(content)
+	if err != nil {
+		logger.Fatalf("failed to save markdown: %v", err)
+		return ""
+	}
+	mdUrl := c.BaseURL() + "/web/" + key
+	logger.Infof("markdown url : %s", mdUrl)
+	return mdUrl
 }
