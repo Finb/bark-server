@@ -187,6 +187,22 @@ tasks:
           GOARCH: amd64,
           GOAMD64: v4
         }
+  darwin_amd64:
+    cmds:
+      - task: build-tpl
+        vars: {
+          TASK: "{{.TASK}}",
+          GOOS: darwin,
+          GOARCH: amd64,
+        }
+  darwin_arm64:
+    cmds:
+      - task: build-tpl
+        vars: {
+          TASK: "{{.TASK}}",
+          GOOS: darwin,
+          GOARCH: arm64,
+        }        
   docker:
     cmds:
       - docker build -t finab/bark-server:{{.BUILD_VERSION}} -f deploy/Dockerfile .
@@ -223,6 +239,8 @@ tasks:
       - task: windows_amd64_v2.exe
       - task: windows_amd64_v3.exe
       - task: windows_amd64_v4.exe
+      - task: darwin_amd64
+      - task: darwin_arm64
   release:
     cmds:
       - task: default
