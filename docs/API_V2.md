@@ -45,7 +45,7 @@ curl -X "POST" "http://127.0.0.1:8080/push" \
   "device_key": "ynJ5Ft4atkMkWeo2PAvFhF",
   "title": "bleem",
   "badge": 1,
-  "category": "category",
+  "category": "myNotificationCategory",
   "sound": "minuet.caf",
   "icon": "https://day.app/assets/images/avatar.jpg",
   "group": "test",
@@ -68,7 +68,7 @@ import (
 func sendPush() {
 	// push (POST http://127.0.0.1:8080/push)
 
-	json := []byte(`{"body": "Test Bark Server","device_key": "nysrshcqielvoxsa","title": "bleem", "badge": 1, "icon": "https://day.app/assets/images/avatar.jpg", "group": "test", "url": "https://mritd.com","category": "category","sound": "minuet.caf"}`)
+	json := []byte(`{"body": "Test Bark Server","device_key": "nysrshcqielvoxsa","title": "bleem", "badge": 1, "icon": "https://day.app/assets/images/avatar.jpg", "group": "test", "url": "https://mritd.com","category": "myNotificationCategory","sound": "minuet.caf"}`)
 	body := bytes.NewBuffer(json)
 
 	// Create client
@@ -124,7 +124,7 @@ def send_request():
                 "body": "Test Bark Server",
                 "device_key": "nysrshcqielvoxsa",
                 "title": "bleem",
-                "category": "category",
+                "category": "myNotificationCategory",
                 "sound": "minuet.caf",
                 "badge": 1,
                 "icon": "https://day.app/assets/images/avatar.jpg",
@@ -166,7 +166,7 @@ public class SendRequest
       .addHeader("Content-Type", "application/json; charset=utf-8")
       
       // Add body
-      .bodyString("{\"body\": \"Test Bark Server\",\"device_key\": \"nysrshcqielvoxsa\",\"title\": \"bleem\",\"url\": \"https://mritd.com\", \"group\": \"test\",\"category\": \"category\",\"sound\": \"minuet.caf\"}", ContentType.APPLICATION_JSON)
+      .bodyString("{\"body\": \"Test Bark Server\",\"device_key\": \"nysrshcqielvoxsa\",\"title\": \"bleem\",\"url\": \"https://mritd.com\", \"group\": \"test\",\"category\": \"myNotificationCategory\",\"sound\": \"minuet.caf\"}", ContentType.APPLICATION_JSON)
       
       // Fetch request and return content
       .execute().returnContent();
@@ -223,7 +223,7 @@ public class SendRequest
     .on('error', (error) => {
         callback(error);
     });
-    request.write("{\"device_key\":\"nysrshcqielvoxsa\",\"body\":\"Test Bark Server\",\"title\":\"bleem\",\"sound\":\"minuet.caf\",\"category\":\"category\",\"url\":\"https://mritd.com\", \"group\":\"test\"}")
+    request.write("{\"device_key\":\"nysrshcqielvoxsa\",\"body\":\"Test Bark Server\",\"title\":\"bleem\",\"sound\":\"minuet.caf\",\"category\":\"myNotificationCategory\",\"url\":\"https://mritd.com\", \"group\":\"test\"}")
     request.end();
     
 
@@ -247,7 +247,7 @@ curl_setopt_array($curl, [
   "device_key": "ynJ5Ft4atkMkWeo2PAvFhF",
   "title": "bleem",
   "badge": 1,
-  "category": "category",
+  "category": "myNotificationCategory",
   "sound": "minuet.caf",
   "icon": "https://day.app/assets/images/avatar.jpg",
   "group": "test",
