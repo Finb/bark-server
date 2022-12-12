@@ -11,7 +11,7 @@ require (
 	github.com/lithammer/shortuuid/v3 v3.0.7
 	github.com/mritd/logger v0.0.6
 	github.com/sideshow/apns2 v0.23.0
-	github.com/urfave/cli/v2 v2.23.6
+	github.com/urfave/cli/v2 v2.23.7
 	go.etcd.io/bbolt v1.3.5
 	golang.org/x/net v0.0.0-20220906165146-f3363e06e74c
 )
