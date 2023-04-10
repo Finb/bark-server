@@ -93,13 +93,6 @@ func Push(msg *PushMessage) error {
 		pl.Custom(strings.ToLower(k), fmt.Sprintf("%v", v))
 	}
 
-	// JSON payload maximum size of 4 KB (4096 bytes)
-	// https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/sending_notification_requests_to_apns#2947607
-	plContentForJson, _ := pl.MarshalJSON()
-	if len(plContentForJson) > PayloadMaximum {
-		return fmt.Errorf("APNS Push Msg Payload too Large %d > 4096 bytes", len(plContentForJson))
-	}
-
 	resp, err := cli.Push(&apns2.Notification{
 		DeviceToken: msg.DeviceToken,
 		Topic:       topic,
