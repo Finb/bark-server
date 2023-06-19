@@ -203,6 +203,22 @@ tasks:
           GOOS: darwin,
           GOARCH: arm64,
         }        
+  freebsd_amd64:
+    cmds:
+      - task: build-tpl
+        vars: {
+          TASK: "{{.TASK}}",
+          GOOS: freebsd,
+          GOARCH: amd64,
+        }        
+  freebsd_arm64:
+    cmds:
+      - task: build-tpl
+        vars: {
+          TASK: "{{.TASK}}",
+          GOOS: freebsd,
+          GOARCH: arm64,
+        }        
   docker:
     cmds:
       - docker build -t finab/bark-server:{{.BUILD_VERSION}} -f deploy/Dockerfile .
@@ -241,6 +257,8 @@ tasks:
       - task: windows_amd64_v4.exe
       - task: darwin_amd64
       - task: darwin_arm64
+      - task: freebsd_amd64
+      - task: freebsd_arm64
   release:
     cmds:
       - task: default
