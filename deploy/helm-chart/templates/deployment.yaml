@@ -36,7 +36,7 @@ spec:
           env:
           {{- range $key, $val := .Values.env }}
             - name: {{ $key }}
-            value: {{ $val | quote }}
+              value: {{ $val | quote }}
           {{- end }}
           ports:
             - name: http
