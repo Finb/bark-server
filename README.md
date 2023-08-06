@@ -38,8 +38,8 @@ If you use the docker-compose tool, you can copy docker-copose.yaml under this p
 
 ``` sh
 mkdir bark-server && cd bark-server
-curl -sL https://git.io/JvSRl > docker-compose.yaml
-docker-compose up -d
+curl -sL https://github.com/Finb/bark-server/raw/master/deploy/docker-compose.yaml > docker-compose.yaml
+docker compose up -d
 ```
 
 ### For General User 
