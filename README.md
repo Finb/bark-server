@@ -15,7 +15,7 @@
          * [Nginx Proxy](#nginx-proxy)
       * [API V2](#api-v2)
       * [Other](#other)
-         * [中文:](#中文)
+         * [中文](#中文)
          * [Markdown Support](#markdown-support)         
       * [Contributing to bark-server](#contributing-to-bark-server)
          * [Development environment](#development-environment)
@@ -38,8 +38,8 @@ If you use the docker-compose tool, you can copy docker-copose.yaml under this p
 
 ``` sh
 mkdir bark-server && cd bark-server
-curl -sL https://git.io/JvSRl > docker-compose.yaml
-docker-compose up -d
+curl -sL https://github.com/Finb/bark-server/raw/master/deploy/docker-compose.yaml > docker-compose.yaml
+docker compose up -d
 ```
 
 ### For General User 
@@ -147,7 +147,7 @@ Please read [API_V2.md](docs/API_V2.md).
 
 ## Other
 
-### 中文:
+### 中文
 
 - [https://day.app/2018/06/bark-server-document](https://day.app/2018/06/bark-server-document)
 
