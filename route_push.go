@@ -116,6 +116,15 @@ func push(c *fiber.Ctx, params map[string]interface{}) error {
 		}
 	}
 
+	if msg.Body == "NoContent" {
+		jsonString, err := json.MarshalIndent(params, "", "    ")
+		if err != nil {
+			return c.Status(500).JSON(failed(500, "push failed, Body format error : %v", err))
+		}
+
+		msg.Body = string(jsonString)
+	}
+
 	// parse url path (highest priority)
 	if pathDeviceKey := c.Params("device_key"); pathDeviceKey != "" {
 		msg.DeviceKey = pathDeviceKey
