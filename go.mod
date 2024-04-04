@@ -13,7 +13,7 @@ require (
 	github.com/sideshow/apns2 v0.23.0
 	github.com/urfave/cli/v2 v2.27.1
 	go.etcd.io/bbolt v1.3.9
-	golang.org/x/net v0.22.0
+	golang.org/x/net v0.23.0
 )
 
 require (
