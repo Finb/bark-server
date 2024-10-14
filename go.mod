@@ -11,7 +11,7 @@ require (
 	github.com/lithammer/shortuuid/v3 v3.0.7
 	github.com/mritd/logger v0.0.6
 	github.com/sideshow/apns2 v0.24.0
-	github.com/urfave/cli/v2 v2.27.4
+	github.com/urfave/cli/v2 v2.27.5
 	go.etcd.io/bbolt v1.3.11
 	golang.org/x/net v0.30.0
 )
@@ -19,7 +19,7 @@ require (
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/andybalholm/brotli v1.0.5 // indirect
-	github.com/cpuguy83/go-md2man/v2 v2.0.4 // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.5 // indirect
 	github.com/golang-jwt/jwt/v4 v4.4.1 // indirect
 	github.com/google/uuid v1.5.0 // indirect
 	github.com/klauspost/compress v1.17.0 // indirect
