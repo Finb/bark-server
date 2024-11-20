@@ -10,7 +10,7 @@ require (
 	github.com/json-iterator/go v1.1.12
 	github.com/lithammer/shortuuid/v3 v3.0.7
 	github.com/mritd/logger v0.0.6
-	github.com/sideshow/apns2 v0.24.0
+	github.com/sideshow/apns2 v0.25.0
 	github.com/urfave/cli/v2 v2.27.4
 	go.etcd.io/bbolt v1.3.11
 	golang.org/x/net v0.30.0
