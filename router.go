@@ -54,7 +54,7 @@ func registerRouteWithWeight(name string, weight int, f func(router fiber.Router
 	}
 
 	for _, r := range routes {
-		if strings.ToLower(name) == strings.ToLower(r.Name) {
+		if strings.EqualFold(name, r.Name) {
 			logger.Fatalf("route [%s] already registered", r.Name)
 		}
 	}

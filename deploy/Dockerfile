@@ -28,7 +28,7 @@ RUN echo 'hosts: files dns' > /etc/nsswitch.conf
 # override it with `--build-arg TIMEZONE=xxxx`
 ARG TIMEZONE=Asia/Shanghai
 
-ENV TZ ${TIMEZONE}
+ENV TZ=${TIMEZONE}
 
 RUN set -ex \
     && apk upgrade \

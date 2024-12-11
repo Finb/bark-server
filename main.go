@@ -155,7 +155,7 @@ func main() {
 				ProxyHeader:       c.String("proxy-header"),
 				ReduceMemoryUsage: c.Bool("reduce-memory-usage"),
 				JSONEncoder:       jsoniter.Marshal,
-				Network: "tcp",
+				Network:           "tcp",
 				ErrorHandler: func(c *fiber.Ctx, err error) error {
 					code := fiber.StatusInternalServerError
 					if e, ok := err.(*fiber.Error); ok {
@@ -183,7 +183,7 @@ func main() {
 			}
 
 			go func() {
-				sigs := make(chan os.Signal)
+				sigs := make(chan os.Signal, 1)
 				signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 				for range sigs {
 					logger.Warn("Received a termination signal, bark server shutdown...")

@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/gofiber/fiber/v2/utils"
 	"net/url"
 	"strings"
+
+	"github.com/gofiber/fiber/v2/utils"
 
 	"github.com/finb/bark-server/v2/apns"
 
@@ -27,8 +28,8 @@ func init() {
 		router.Get("/:device_key/:title/:body", func(c *fiber.Ctx) error { return routeDoPush(c) })
 		router.Post("/:device_key/:title/:body", func(c *fiber.Ctx) error { return routeDoPush(c) })
 
-		router.Get("/:device_key/:category/:title/:body", func(c *fiber.Ctx) error { return routeDoPush(c) })
-		router.Post("/:device_key/:category/:title/:body", func(c *fiber.Ctx) error { return routeDoPush(c) })
+		router.Get("/:device_key/:title/:subtitle/:body", func(c *fiber.Ctx) error { return routeDoPush(c) })
+		router.Post("/:device_key/:title/:subtitle/:body", func(c *fiber.Ctx) error { return routeDoPush(c) })
 	})
 }
 
@@ -70,7 +71,7 @@ func routeDoPushV2(c *fiber.Ctx) error {
 		return c.Status(400).JSON(failed(400, "request bind failed: %v", err))
 	}
 	// parse query args (medium priority)
-	c.Request().URI().QueryArgs().VisitAll(func(key, value []byte){
+	c.Request().URI().QueryArgs().VisitAll(func(key, value []byte) {
 		params[strings.ToLower(string(key))] = string(value)
 	})
 	return push(c, params)
@@ -79,8 +80,7 @@ func routeDoPushV2(c *fiber.Ctx) error {
 func push(c *fiber.Ctx, params map[string]interface{}) error {
 	// default value
 	msg := apns.PushMessage{
-		Category:  "myNotificationCategory",
-		Body:      "NoContent",
+		Body:      "",
 		Sound:     "1107",
 		ExtParams: make(map[string]interface{}),
 	}
@@ -91,8 +91,8 @@ func push(c *fiber.Ctx, params map[string]interface{}) error {
 			switch strings.ToLower(string(key)) {
 			case "device_key":
 				msg.DeviceKey = val
-			case "category":
-				msg.Category = val
+			case "subtitle":
+				msg.Subtitle = val
 			case "title":
 				msg.Title = val
 			case "body":
@@ -120,12 +120,12 @@ func push(c *fiber.Ctx, params map[string]interface{}) error {
 	if pathDeviceKey := c.Params("device_key"); pathDeviceKey != "" {
 		msg.DeviceKey = pathDeviceKey
 	}
-	if category := c.Params("category"); category != "" {
-		str, err := url.QueryUnescape(category)
+	if subtitle := c.Params("subtitle"); subtitle != "" {
+		str, err := url.QueryUnescape(subtitle)
 		if err != nil {
 			return err
 		}
-		msg.Category = str
+		msg.Subtitle = str
 	}
 	if title := c.Params("title"); title != "" {
 		str, err := url.QueryUnescape(title)

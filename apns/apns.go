@@ -19,7 +19,7 @@ import (
 type PushMessage struct {
 	DeviceToken string `form:"-" json:"-" xml:"-" query:"-"`
 	DeviceKey   string `form:"device_key,omitempty" json:"device_key,omitempty" xml:"device_key,omitempty" query:"device_key,omitempty"`
-	Category    string `form:"category,omitempty" json:"category,omitempty" xml:"category,omitempty" query:"category,omitempty"`
+	Subtitle    string `form:"subtitle,omitempty" json:"subtitle,omitempty" xml:"subtitle,omitempty" query:"subtitle,omitempty"`
 	Title       string `form:"title,omitempty" json:"title,omitempty" xml:"title,omitempty" query:"title,omitempty"`
 	Body        string `form:"body,omitempty" json:"body,omitempty" xml:"body,omitempty" query:"body,omitempty"`
 	// ios notification sound(system sound please refer to http://iphonedevwiki.net/index.php/AudioServices)
@@ -79,9 +79,10 @@ func init() {
 func Push(msg *PushMessage) error {
 	pl := payload.NewPayload().
 		AlertTitle(msg.Title).
+		AlertSubtitle(msg.Subtitle).
 		AlertBody(msg.Body).
 		Sound(msg.Sound).
-		Category(msg.Category)
+		Category("myNotificationCategory")
 
 	group, exist := msg.ExtParams["group"]
 	if exist {

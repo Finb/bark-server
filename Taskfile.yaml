@@ -7,6 +7,7 @@ vars:
     sh: date "+%F %T"
   COMMIT_ID:
     sh: git rev-parse HEAD
+  DOCKER_SOCK: /var/run/docker.sock
 
 tasks:
   clean:
@@ -227,9 +228,9 @@ tasks:
     vars:
       PLATFORM: linux/amd64,linux/arm/v7,linux/arm64
     cmds:
-      - docker run -dt --name dind -v {{.DOCKER_SOCK}}:/var/run/docker.sock -v $(pwd):/bark-server docker
+      - docker run -dt --name dind -v {{.DOCKER_SOCK}}:/var/run/docker.sock -v $(pwd):/bark-server docker tail -f /dev/null
       - defer: docker rm -f dind
-      #- docker exec -w /bark-server -it dind docker run --privileged --rm tonistiigi/binfmt --install all
+      - docker exec -w /bark-server -it dind docker login
       - docker exec -w /bark-server -it dind docker buildx create --name builder --driver docker-container --bootstrap --use
       - docker exec -w /bark-server -it dind docker buildx build --platform {{.PLATFORM}} -t finab/bark-server:{{.BUILD_VERSION}} -f deploy/Dockerfile --push .
   default:
