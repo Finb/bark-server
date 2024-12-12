@@ -146,6 +146,10 @@ func push(c *fiber.Ctx, params map[string]interface{}) error {
 		return c.Status(400).JSON(failed(400, "device key is empty"))
 	}
 
+	if msg.Body == "" && msg.Title == "" && msg.Subtitle == "" {
+		msg.Body = "Empty message"
+	}
+
 	deviceToken, err := db.DeviceTokenByKey(msg.DeviceKey)
 	if err != nil {
 		return c.Status(400).JSON(failed(400, "failed to get device token: %v", err))
