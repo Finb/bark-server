@@ -34,7 +34,8 @@ const (
 	PayloadMaximum = 4096
 )
 
-var clients = make(chan *apns2.Client, 50)
+var maxClientCount = 50
+var clients = make(chan *apns2.Client, maxClientCount)
 
 func init() {
 	authKey, err := token.AuthKeyFromBytes([]byte(apnsPrivateKey))
@@ -56,7 +57,7 @@ func init() {
 		rootCAs.AppendCertsFromPEM([]byte(ca))
 	}
 
-	for i := 0; i < runtime.NumCPU(); i++ {
+	for i := 0; i < min(runtime.NumCPU(), maxClientCount); i++ {
 		client := &apns2.Client{
 			Token: &token.Token{
 				AuthKey: authKey,
