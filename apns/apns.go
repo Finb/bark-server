@@ -34,7 +34,7 @@ const (
 	PayloadMaximum = 4096
 )
 
-var cli *apns2.Client
+var clients = make(chan *apns2.Client, 50)
 
 func init() {
 	authKey, err := token.AuthKeyFromBytes([]byte(apnsPrivateKey))
@@ -56,23 +56,27 @@ func init() {
 		rootCAs.AppendCertsFromPEM([]byte(ca))
 	}
 
-	cli = &apns2.Client{
-		Token: &token.Token{
-			AuthKey: authKey,
-			KeyID:   keyID,
-			TeamID:  teamID,
-		},
-		HTTPClient: &http.Client{
-			Transport: &http2.Transport{
-				DialTLS: apns2.DialTLS,
-				TLSClientConfig: &tls.Config{
-					RootCAs: rootCAs,
-				},
+	for i := 0; i < runtime.NumCPU(); i++ {
+		client := &apns2.Client{
+			Token: &token.Token{
+				AuthKey: authKey,
+				KeyID:   keyID,
+				TeamID:  teamID,
 			},
-			Timeout: apns2.HTTPClientTimeout,
-		},
-		Host: apns2.HostProduction,
+			HTTPClient: &http.Client{
+				Transport: &http2.Transport{
+					DialTLS: apns2.DialTLS,
+					TLSClientConfig: &tls.Config{
+						RootCAs: rootCAs,
+					},
+				},
+				Timeout: apns2.HTTPClientTimeout,
+			},
+			Host: apns2.HostProduction,
+		}
+		clients <- client
 	}
+
 	logger.Info("init apns client success...")
 }
 
@@ -94,7 +98,10 @@ func Push(msg *PushMessage) error {
 		pl.Custom(strings.ToLower(k), fmt.Sprintf("%v", v))
 	}
 
-	resp, err := cli.Push(&apns2.Notification{
+	client := <-clients // grab a client from the pool
+	clients <- client   // add the client back to the pool
+
+	resp, err := client.Push(&apns2.Notification{
 		DeviceToken: msg.DeviceToken,
 		Topic:       topic,
 		Payload:     pl.MutableContent(),
