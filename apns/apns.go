@@ -34,10 +34,18 @@ const (
 	PayloadMaximum = 4096
 )
 
-var maxClientCount = 50
-var clients = make(chan *apns2.Client, maxClientCount)
+var clients = make(chan *apns2.Client, 1)
 
+// 初始化 APNS 客户端池
 func init() {
+	ReCreateAPNS(1)
+}
+
+func ReCreateAPNS(maxClientCount int) error {
+	if maxClientCount < 1 {
+		return fmt.Errorf("invalid number of clients")
+	}
+
 	authKey, err := token.AuthKeyFromBytes([]byte(apnsPrivateKey))
 	if err != nil {
 		logger.Fatalf("failed to create APNS auth key: %v", err)
@@ -57,6 +65,8 @@ func init() {
 		rootCAs.AppendCertsFromPEM([]byte(ca))
 	}
 
+	clients = make(chan *apns2.Client, maxClientCount)
+
 	for i := 0; i < min(runtime.NumCPU(), maxClientCount); i++ {
 		client := &apns2.Client{
 			Token: &token.Token{
@@ -75,10 +85,12 @@ func init() {
 			},
 			Host: apns2.HostProduction,
 		}
+		logger.Infof("create apns client: %d", i)
 		clients <- client
 	}
 
 	logger.Info("init apns client success...")
+	return nil
 }
 
 func Push(msg *PushMessage) error {
