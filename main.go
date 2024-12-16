@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/finb/bark-server/v2/apns"
 	"github.com/finb/bark-server/v2/database"
 
 	jsoniter "github.com/json-iterator/go"
@@ -109,6 +110,13 @@ func main() {
 				Usage:   "The remote IP address used by the bark server http header",
 				EnvVars: []string{"BARK_SERVER_PROXY_HEADER"},
 				Value:   "",
+			},
+			&cli.IntFlag{
+				Name:    "max-apns-client-count",
+				Usage:   "Maximum number of APNs client connections",
+				EnvVars: []string{"BARK_SERVER_MAX_APNS_CLIENT_COUNT"},
+				Value:   1,
+				Action:  func(ctx *cli.Context, v int) error { return apns.ReCreateAPNS(v) },
 			},
 			&cli.IntFlag{
 				Name:    "concurrency",
