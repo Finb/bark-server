@@ -112,6 +112,13 @@ func main() {
 				Value:   "",
 			},
 			&cli.IntFlag{
+				Name:    "max-batch-push-count",
+				Usage:   "Maximum number of batch pushes allowed, -1 means no limit",
+				EnvVars: []string{"BARK_SERVER_MAX_BATCH_PUSH_COUNT"},
+				Value:   -1,
+				Action:  func(ctx *cli.Context, v int) error { SetMaxBatchPushCount(v); return nil },
+			},
+			&cli.IntFlag{
 				Name:    "max-apns-client-count",
 				Usage:   "Maximum number of APNs client connections",
 				EnvVars: []string{"BARK_SERVER_MAX_APNS_CLIENT_COUNT"},
