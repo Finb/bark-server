@@ -19,21 +19,21 @@ the V2 version.**
     
 ## Push
 
-| Field | Type | Description |
-| ----- | ---- | ----------- |
-| title | string | Notification title (font size would be larger than the body) |
-| subtitle | string | | Notification subtitle |
-| body  | string | Notification content |
-| device_key | string | The key for each device |
-| level (optional) | string | `'active'`, `'timeSensitive'`, or `'passive'` |
-| badge (optional) | integer | The number displayed next to App icon ([Apple Developer](https://developer.apple.com/documentation/usernotifications/unnotificationcontent/1649864-badge)) |
-| automaticallyCopy (optional) | string | Must be `1` |
-| copy (optional) | string |  The value to be copied |
-| sound (optional) | string | Value from [here](https://github.com/Finb/Bark/tree/master/Sounds) |
-| icon (optional) | string | An url to the icon, available only on iOS 15 or later |
-| group (optional) | string | The group of the notification |
-| isArchive (optional) | string | Value must be `1`. Whether or not should be archived by the app |
-| url (optional) | string | Url that will jump when click notification |
+| Field                        | Type    | Description                                                                                                                                                |
+|------------------------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| title (optional)             | string  | Notification title (font size would be larger than the body)                                                                                               |
+| subtitle (optional)          | string  | Notification subtitle                                                                                                                                      |
+| body (optional)              | string  | Notification content                                                                                                                                       |
+| device_key                   | string  | The key for each device. Multiple keys can be separated by commas.                                                                                         |
+| level (optional)             | string  | `'active'`, `'timeSensitive'`, or `'passive'`                                                                                                              |
+| badge (optional)             | integer | The number displayed next to App icon ([Apple Developer](https://developer.apple.com/documentation/usernotifications/unnotificationcontent/1649864-badge)) |
+| automaticallyCopy (optional) | string  | Must be `1`                                                                                                                                                |
+| copy (optional)              | string  | The value to be copied                                                                                                                                     |
+| sound (optional)             | string  | Value from [here](https://github.com/Finb/Bark/tree/master/Sounds)                                                                                         |
+| icon (optional)              | string  | An url to the icon, available only on iOS 15 or later                                                                                                      |
+| group (optional)             | string  | The group of the notification                                                                                                                              |
+| isArchive (optional)         | string  | Value must be `1`. Whether or not should be archived by the app                                                                                            |
+| url (optional)               | string  | Url that will jump when click notification                                                                                                                 |
 
 ### curl
 
@@ -42,7 +42,7 @@ curl -X "POST" "http://127.0.0.1:8080/push" \
      -H 'Content-Type: application/json; charset=utf-8' \
      -d $'{
   "body": "Test Bark Server",
-  "device_key": "ynJ5Ft4atkMkWeo2PAvFhF",
+  "device_key": "ynJ5Ft4atkMkWeo2PAvFhF, ynJ5Ft4atkMkWeo2PAvFhA, ynJ5Ft4atkMkWeo2PAvFhB",
   "title": "bleem",
   "badge": 1,
   "sound": "minuet.caf",
