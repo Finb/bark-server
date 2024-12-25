@@ -1,7 +1,15 @@
-package apns
+package pusher
+
+// APNS default configuration
+
+const ApnsClientCount = 2
+const ApnsTopic = "me.fin.bark"
+const ApnsKeyID = "LH4T9V5U4R"
+const ApnsTeamID = "5U8LBRXG3A"
+const ApnsPayloadMaximum = 4096
 
 // Bark push private key
-const apnsPrivateKey = `-----BEGIN PRIVATE KEY-----
+const ApnsPrivateKey = `-----BEGIN PRIVATE KEY-----
 MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQg4vtC3g5L5HgKGJ2+
 T1eA0tOivREvEAY2g+juRXJkYL2gCgYIKoZIzj0DAQehRANCAASmOs3JkSyoGEWZ
 sUGxFs/4pw1rIlSV2IC19M8u3G5kq36upOwyFWj9Gi3Ejc9d3sC7+SHRqXrEAJow
@@ -10,7 +18,7 @@ sUGxFs/4pw1rIlSV2IC19M8u3G5kq36upOwyFWj9Gi3Ejc9d3sC7+SHRqXrEAJow
 `
 
 // Currently known APNS CA
-var apnsCAs = [...]string{
+var ApnsCAs = []string{
 	// AppleComputerRootCertificate.cer
 	`-----BEGIN CERTIFICATE-----
 MIIFujCCBKKgAwIBAgIBATANBgkqhkiG9w0BAQUFADCBhjELMAkGA1UEBhMCVVMx

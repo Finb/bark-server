@@ -1,4 +1,4 @@
-package apns
+package pusher
 
 import (
 	"crypto/tls"
@@ -16,34 +16,18 @@ import (
 	"golang.org/x/net/http2"
 )
 
-type PushMessage struct {
-	DeviceToken string `form:"-" json:"-" xml:"-" query:"-"`
-	DeviceKey   string `form:"device_key,omitempty" json:"device_key,omitempty" xml:"device_key,omitempty" query:"device_key,omitempty"`
-	Subtitle    string `form:"subtitle,omitempty" json:"subtitle,omitempty" xml:"subtitle,omitempty" query:"subtitle,omitempty"`
-	Title       string `form:"title,omitempty" json:"title,omitempty" xml:"title,omitempty" query:"title,omitempty"`
-	Body        string `form:"body,omitempty" json:"body,omitempty" xml:"body,omitempty" query:"body,omitempty"`
-	// ios notification sound(system sound please refer to http://iphonedevwiki.net/index.php/AudioServices)
-	Sound     string                 `form:"sound,omitempty" json:"sound,omitempty" xml:"sound,omitempty" query:"sound,omitempty"`
-	ExtParams map[string]interface{} `form:"ext_params,omitempty" json:"ext_params,omitempty" xml:"ext_params,omitempty" query:"ext_params,omitempty"`
+type APNS struct {
+	clients chan *apns2.Client
+	topic   string
 }
 
-const (
-	topic          = "me.fin.bark"
-	keyID          = "LH4T9V5U4R"
-	teamID         = "5U8LBRXG3A"
-	PayloadMaximum = 4096
-)
-
-var clients = make(chan *apns2.Client, 1)
-
-// 初始化 APNS 客户端池
-func init() {
-	ReCreateAPNS(1)
-}
-
-func ReCreateAPNS(maxClientCount int) error {
+func NewAPNS(
+	maxClientCount int,
+	apnsPrivateKey, topic, keyID, teamID string,
+	apnsCAs []string,
+) (*APNS, error) {
 	if maxClientCount < 1 {
-		return fmt.Errorf("invalid number of clients")
+		return nil, fmt.Errorf("invalid number of clients")
 	}
 
 	authKey, err := token.AuthKeyFromBytes([]byte(apnsPrivateKey))
@@ -65,7 +49,7 @@ func ReCreateAPNS(maxClientCount int) error {
 		rootCAs.AppendCertsFromPEM([]byte(ca))
 	}
 
-	clients = make(chan *apns2.Client, maxClientCount)
+	clients := make(chan *apns2.Client, maxClientCount)
 
 	for i := 0; i < min(runtime.NumCPU(), maxClientCount); i++ {
 		client := &apns2.Client{
@@ -90,33 +74,39 @@ func ReCreateAPNS(maxClientCount int) error {
 	}
 
 	logger.Info("init apns client success...")
-	return nil
+	return &APNS{
+		clients: clients,
+		topic:   topic,
+	}, nil
 }
 
-func Push(msg *PushMessage) error {
+func (a *APNS) Push(message Message) error {
+	var (
+		msg *ApnsMessage
+		ok  bool
+	)
+	if msg, ok = message.(*ApnsMessage); !ok {
+		return fmt.Errorf("invalid message type")
+	}
 	pl := payload.NewPayload().
 		AlertTitle(msg.Title).
 		AlertSubtitle(msg.Subtitle).
 		AlertBody(msg.Body).
 		Sound(msg.Sound).
-		Category("myNotificationCategory")
-
-	group, exist := msg.ExtParams["group"]
-	if exist {
-		pl = pl.ThreadID(group.(string))
-	}
+		Category(msg.Category).
+		ThreadID(msg.Group)
 
 	for k, v := range msg.ExtParams {
 		// Change all parameter names to lowercase to prevent inconsistent capitalization
 		pl.Custom(strings.ToLower(k), fmt.Sprintf("%v", v))
 	}
 
-	client := <-clients // grab a client from the pool
-	clients <- client   // add the client back to the pool
+	client := <-a.clients // grab a client from the pool
+	a.clients <- client   // add the client back to the pool
 
 	resp, err := client.Push(&apns2.Notification{
 		DeviceToken: msg.DeviceToken,
-		Topic:       topic,
+		Topic:       a.topic,
 		Payload:     pl.MutableContent(),
 		Expiration:  time.Now().Add(24 * time.Hour),
 	})

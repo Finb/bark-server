@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 	"sort"
 	"strings"
@@ -108,4 +109,24 @@ func data(data interface{}) CommonResp {
 		Timestamp: time.Now().Unix(),
 		Data:      data,
 	}
+}
+
+func getAllParams(c *fiber.Ctx) map[string]interface{} {
+	params := make(map[string]interface{})
+	// 获取路径参数
+	for k, v := range c.AllParams() {
+		params[k] = v
+	}
+	// 获取查询参数
+	for k, v := range c.Queries() {
+		params[k] = v
+	}
+	// URL 解码所有参数
+	for k, v := range params {
+		if str, ok := v.(string); ok {
+			decoded, _ := url.QueryUnescape(str)
+			params[k] = decoded
+		}
+	}
+	return params
 }
