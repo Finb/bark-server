@@ -235,6 +235,35 @@ func TestCiphertext(t *testing.T) {
 	})
 }
 
+func TestBatchPush(t *testing.T) {
+	Endpoint(t, []APITestCase{
+		{
+			Name:           "Batch Push",
+			Method:         "POST",
+			URL:            "/" + key,
+			Body:           "{\"title\":\"title\",\"subtitle\":\"subtitle\",\"body\":\"body\",\"device_keys\":[\"" + key + "\",\"" + key + "\",\"" + key + "\"]}",
+			IsJson:         true,
+			WantStatusCode: 200,
+		},
+		{
+			Name:           "Batch Push",
+			Method:         "POST",
+			URL:            "/push",
+			Body:           "{\"title\":\"title\",\"subtitle\":\"subtitle\",\"body\":\"body\",\"device_keys\":[\"" + key + "\",\"" + key + "\",\"" + key + "\"]}",
+			IsJson:         true,
+			WantStatusCode: 200,
+		},
+		{
+			Name:           "Batch Push",
+			Method:         "POST",
+			URL:            "/push",
+			Body:           "{\"title\":\"title\",\"subtitle\":\"subtitle\",\"body\":\"body\",\"device_keys\": \"" + key + "," + key + "," + key + "\"}",
+			IsJson:         true,
+			WantStatusCode: 200,
+		},
+	})
+}
+
 type APITestCase struct {
 	Name           string
 	Method         string
