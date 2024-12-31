@@ -42,7 +42,6 @@ func init() {
 func SetMaxBatchPushCount(count int) {
 	maxBatchPushCount = count
 }
-
 func routeDoPush(c *fiber.Ctx) error {
 	// Get content-type
 	contentType := utils.ToLower(utils.UnsafeString(c.Request().Header.ContentType()))
@@ -50,7 +49,12 @@ func routeDoPush(c *fiber.Ctx) error {
 	// Json request uses the API V2
 	if strings.HasPrefix(contentType, "application/json") {
 		return routeDoPushV2(c)
+	} else {
+		return routeDoPushV1(c)
 	}
+}
+
+func routeDoPushV1(c *fiber.Ctx) error {
 
 	params := make(map[string]interface{})
 	visitor := func(key, value []byte) {
@@ -60,7 +64,6 @@ func routeDoPush(c *fiber.Ctx) error {
 	c.Request().URI().QueryArgs().VisitAll(visitor)
 	// parse post args
 	c.Request().PostArgs().VisitAll(visitor)
-
 	// parse multipartForm values
 	form, err := c.Request().MultipartForm()
 	if err == nil {
@@ -70,15 +73,22 @@ func routeDoPush(c *fiber.Ctx) error {
 			}
 		}
 	}
+	// parse url path (highest priority)
+	pathParams, err := extractUrlPathParams(c)
+	if err != nil {
+		return c.Status(500).JSON(failed(400, "url path parse failed: %v", err))
+	}
+	for key, val := range pathParams {
+		params[key] = val
+	}
 
-	code, err := push(c, params)
+	code, err := push(params)
 	if err != nil {
 		return c.Status(code).JSON(failed(code, err.Error()))
 	} else {
 		return c.JSON(success())
 	}
 }
-
 func routeDoPushV2(c *fiber.Ctx) error {
 	params := make(map[string]interface{})
 	// parse body
@@ -89,6 +99,14 @@ func routeDoPushV2(c *fiber.Ctx) error {
 	c.Request().URI().QueryArgs().VisitAll(func(key, value []byte) {
 		params[strings.ToLower(string(key))] = string(value)
 	})
+	// parse url path (highest priority)
+	pathParams, err := extractUrlPathParams(c)
+	if err != nil {
+		return c.Status(500).JSON(failed(400, "url path parse failed: %v", err))
+	}
+	for key, val := range pathParams {
+		params[key] = val
+	}
 
 	var deviceKeys []string
 	// Get the device_keys array from params
@@ -110,7 +128,7 @@ func routeDoPushV2(c *fiber.Ctx) error {
 
 	if count == 0 {
 		// Single push
-		code, err := push(c, params)
+		code, err := push(params)
 		if err != nil {
 			return c.Status(code).JSON(failed(code, err.Error()))
 		} else {
@@ -139,7 +157,7 @@ func routeDoPushV2(c *fiber.Ctx) error {
 				defer wg.Done()
 
 				// Push
-				code, err := push(c, newParams)
+				code, err := push(newParams)
 
 				// Save result
 				mu.Lock()
@@ -157,7 +175,37 @@ func routeDoPushV2(c *fiber.Ctx) error {
 	}
 }
 
-func push(c *fiber.Ctx, params map[string]interface{}) (int, error) {
+func extractUrlPathParams(c *fiber.Ctx) (map[string]interface{}, error) {
+	// parse url path (highest priority)
+	params := make(map[string]interface{})
+	if pathDeviceKey := c.Params("device_key"); pathDeviceKey != "" {
+		params["device_key"] = pathDeviceKey
+	}
+	if subtitle := c.Params("subtitle"); subtitle != "" {
+		str, err := url.QueryUnescape(subtitle)
+		if err != nil {
+			return nil, err
+		}
+		params["subtitle"] = str
+	}
+	if title := c.Params("title"); title != "" {
+		str, err := url.QueryUnescape(title)
+		if err != nil {
+			return nil, err
+		}
+		params["title"] = str
+	}
+	if body := c.Params("body"); body != "" {
+		str, err := url.QueryUnescape(body)
+		if err != nil {
+			return nil, err
+		}
+		params["body"] = str
+	}
+	return params, nil
+}
+
+func push(params map[string]interface{}) (int, error) {
 	// default value
 	msg := apns.PushMessage{
 		Body:      "",
@@ -194,32 +242,6 @@ func push(c *fiber.Ctx, params map[string]interface{}) (int, error) {
 		default:
 			msg.ExtParams[key] = val
 		}
-	}
-
-	// parse url path (highest priority)
-	if pathDeviceKey := c.Params("device_key"); pathDeviceKey != "" {
-		msg.DeviceKey = pathDeviceKey
-	}
-	if subtitle := c.Params("subtitle"); subtitle != "" {
-		str, err := url.QueryUnescape(subtitle)
-		if err != nil {
-			return 500, err
-		}
-		msg.Subtitle = str
-	}
-	if title := c.Params("title"); title != "" {
-		str, err := url.QueryUnescape(title)
-		if err != nil {
-			return 500, err
-		}
-		msg.Title = str
-	}
-	if body := c.Params("body"); body != "" {
-		str, err := url.QueryUnescape(body)
-		if err != nil {
-			return 500, err
-		}
-		msg.Body = str
 	}
 
 	if msg.DeviceKey == "" {
