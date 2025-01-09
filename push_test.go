@@ -314,6 +314,6 @@ func Endpoint(t *testing.T, tc []APITestCase) {
 			}
 		})
 		// Prevent rate limiting by sending requests too quickly
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(100 * time.Millisecond)
 	}
 }

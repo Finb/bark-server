@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"strings"
 )
 
 var (
@@ -31,7 +32,8 @@ func (d *MemBase) SaveDeviceTokenByKey(key, token string) (string, error) {
 	if key != "" && key != cacheKey {
 		return "", fmt.Errorf("key not found")
 	}
-	cacheDeviceToken = token
+	// Deep copy prevents Fiber memory overwrite bugs.
+	cacheDeviceToken = strings.Clone(token)
 	return key, nil
 }
 
