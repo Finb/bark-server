@@ -9,6 +9,11 @@ import (
 
 func init() {
 	registerRoute("misc", func(router fiber.Router) {
+		// Return an OK to indicate the server is running normally
+		router.Get("/", func(c *fiber.Ctx) error {
+			return c.SendString("ok")
+		})
+
 		// ping func only returns a "pong" string, usually used to test server response
 		router.Get("/ping", func(c *fiber.Ctx) error {
 			return c.JSON(CommonResp{
@@ -18,7 +23,7 @@ func init() {
 			})
 		})
 
-		// healthz func only returns a "ok" string, similar to ping func,
+		// healthz func only returns an "ok" string, similar to ping func,
 		// healthz func is usually used for health check
 		router.Get("/healthz", func(c *fiber.Ctx) error {
 			return c.SendString("ok")
