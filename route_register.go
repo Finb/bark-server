@@ -76,7 +76,7 @@ func doRegisterCheck(c *fiber.Ctx) error {
 
 	_, err := db.DeviceTokenByKey(deviceKey)
 	if err != nil {
-		return c.Status(400).JSON(failed(400, err.Error()))
+		return c.Status(400).JSON(failed(400, "%s", err.Error()))
 	}
 	return c.Status(200).JSON(success())
 }

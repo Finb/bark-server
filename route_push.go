@@ -84,7 +84,7 @@ func routeDoPushV1(c *fiber.Ctx) error {
 
 	code, err := push(params)
 	if err != nil {
-		return c.Status(code).JSON(failed(code, err.Error()))
+		return c.Status(code).JSON(failed(code, "%s", err.Error()))
 	} else {
 		return c.JSON(success())
 	}
@@ -130,7 +130,7 @@ func routeDoPushV2(c *fiber.Ctx) error {
 		// Single push
 		code, err := push(params)
 		if err != nil {
-			return c.Status(code).JSON(failed(code, err.Error()))
+			return c.Status(code).JSON(failed(code, "%s", err.Error()))
 		} else {
 			return c.JSON(success())
 		}
