@@ -21,19 +21,24 @@ the V2 version.**
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| title | string | Notification title (font size would be larger than the body) |
-| subtitle | string | | Notification subtitle |
+| title (optional) | string | Notification title (font size would be larger than the body) |
+| subtitle (optional) | string | Notification subtitle |
 | body  | string | Notification content |
 | device_key | string | The key for each device |
-| level (optional) | string | `'active'`, `'timeSensitive'`, or `'passive'` |
+| device_keys (optional) | array | Used for batch pushing |
+| level (optional) | string | `'critical'`, `'active'`, `'timeSensitive'`, `'passive'` |
+| volume (optional) | string | The ringtone volume for critical alert notification. |
 | badge (optional) | integer | The number displayed next to App icon ([Apple Developer](https://developer.apple.com/documentation/usernotifications/unnotificationcontent/1649864-badge)) |
-| automaticallyCopy (optional) | string | Must be `1` |
+| call (optional) | string | Must be `1`, The ringtone will continue to play for 30 seconds |
+| autoCopy (optional) | string | Must be `1` |
 | copy (optional) | string |  The value to be copied |
-| sound (optional) | string | Value from [here](https://github.com/Finb/Bark/tree/master/Sounds) |
+| sound (optional) | string | Value from [here](https://github.com/Finb/Bark/tree/master/Sounds)， and custom ringtones are also available |
 | icon (optional) | string | An url to the icon, available only on iOS 15 or later |
 | group (optional) | string | The group of the notification |
+| ciphertext (optional) | string | The ciphertext of encrypted push notifications |
 | isArchive (optional) | string | Value must be `1`. Whether or not should be archived by the app |
 | url (optional) | string | Url that will jump when click notification |
+| action (optional) | string | Set to "none", tap notifications do nothing |
 
 ### curl
 
@@ -45,7 +50,7 @@ curl -X "POST" "http://127.0.0.1:8080/push" \
   "device_key": "ynJ5Ft4atkMkWeo2PAvFhF",
   "title": "bleem",
   "badge": 1,
-  "sound": "minuet.caf",
+  "sound": "minuet",
   "icon": "https://day.app/assets/images/avatar.jpg",
   "group": "test",
   "url": "https://mritd.com"
@@ -67,7 +72,7 @@ import (
 func sendPush() {
 	// push (POST http://127.0.0.1:8080/push)
 
-	json := []byte(`{"body": "Test Bark Server","device_key": "nysrshcqielvoxsa","title": "bleem", "badge": 1, "icon": "https://day.app/assets/images/avatar.jpg", "group": "test", "url": "https://mritd.com","sound": "minuet.caf"}`)
+	json := []byte(`{"body": "Test Bark Server","device_key": "nysrshcqielvoxsa","title": "bleem", "badge": 1, "icon": "https://day.app/assets/images/avatar.jpg", "group": "test", "url": "https://mritd.com","sound": "minuet"}`)
 	body := bytes.NewBuffer(json)
 
 	// Create client
@@ -123,7 +128,7 @@ def send_request():
                 "body": "Test Bark Server",
                 "device_key": "nysrshcqielvoxsa",
                 "title": "bleem",
-                "sound": "minuet.caf",
+                "sound": "minuet",
                 "badge": 1,
                 "icon": "https://day.app/assets/images/avatar.jpg",
                 "group": "test",
@@ -164,7 +169,7 @@ public class SendRequest
       .addHeader("Content-Type", "application/json; charset=utf-8")
       
       // Add body
-      .bodyString("{\"body\": \"Test Bark Server\",\"device_key\": \"nysrshcqielvoxsa\",\"title\": \"bleem\",\"url\": \"https://mritd.com\", \"group\": \"test\",\"sound\": \"minuet.caf\"}", ContentType.APPLICATION_JSON)
+      .bodyString("{\"body\": \"Test Bark Server\",\"device_key\": \"nysrshcqielvoxsa\",\"title\": \"bleem\",\"url\": \"https://mritd.com\", \"group\": \"test\",\"sound\": \"minuet\"}", ContentType.APPLICATION_JSON)
       
       // Fetch request and return content
       .execute().returnContent();
@@ -221,7 +226,7 @@ public class SendRequest
     .on('error', (error) => {
         callback(error);
     });
-    request.write("{\"device_key\":\"nysrshcqielvoxsa\",\"body\":\"Test Bark Server\",\"title\":\"bleem\",\"sound\":\"minuet.caf\",\"url\":\"https://mritd.com\", \"group\":\"test\"}")
+    request.write("{\"device_key\":\"nysrshcqielvoxsa\",\"body\":\"Test Bark Server\",\"title\":\"bleem\",\"sound\":\"minuet\",\"url\":\"https://mritd.com\", \"group\":\"test\"}")
     request.end();
     
 
@@ -245,7 +250,7 @@ curl_setopt_array($curl, [
   "device_key": "ynJ5Ft4atkMkWeo2PAvFhF",
   "title": "bleem",
   "badge": 1,
-  "sound": "minuet.caf",
+  "sound": "minuet",
   "icon": "https://day.app/assets/images/avatar.jpg",
   "group": "test",
   "url": "https://mritd.com"
