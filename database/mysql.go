@@ -2,14 +2,14 @@ package database
 
 import (
 	"database/sql"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/lithammer/shortuuid/v3"
 	"github.com/mritd/logger"
 )
 
-type MySQL struct {
-}
+type MySQL struct{}
 
 var mysqlDB *sql.DB
 
@@ -24,11 +24,15 @@ const (
 		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
 )
 
-func NewMySQL(dsn string) Database {
+func NewMySQL(dsn string, maxConns int) Database {
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		logger.Fatalf("failed to open database connection (%s): %v", dsn, err)
 	}
+
+	db.SetMaxOpenConns(maxConns)
+	db.SetMaxIdleConns(maxConns)
+	db.SetConnMaxLifetime(time.Minute * 3)
 
 	_, err = db.Exec(dbSchema)
 	if err != nil {
