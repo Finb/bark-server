@@ -3,6 +3,7 @@
 module github.com/finb/bark-server/v2
 
 go 1.22
+toolchain go1.23.7
 
 require (
 	github.com/go-sql-driver/mysql v1.8.1
@@ -13,7 +14,7 @@ require (
 	github.com/sideshow/apns2 v0.25.0
 	github.com/urfave/cli/v2 v2.27.4
 	go.etcd.io/bbolt v1.3.11
-	golang.org/x/net v0.34.0
+	golang.org/x/net v0.36.0
 )
 
 require (
@@ -37,6 +38,6 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.20.0 // indirect
-	golang.org/x/sys v0.29.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
+	golang.org/x/text v0.22.0 // indirect
 )
