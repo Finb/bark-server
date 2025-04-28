@@ -57,6 +57,12 @@ func main() {
 				EnvVars: []string{"BARK_SERVER_DSN"},
 				Value:   "",
 			},
+			&cli.IntFlag{
+				Name:    "mysql-max-open-conns",
+				Usage:   "mysql max open connections",
+				EnvVars: []string{"BARK_SERVER_MYSQL_MAX_OPEN_CONNS"},
+				Value:   20,
+			},
 			&cli.BoolFlag{
 				Name:    "serverless",
 				Usage:   "serverless mode",
@@ -192,7 +198,7 @@ func main() {
 				// use system environment variable.
 				db = database.NewEnvBase()
 			} else if dsn := c.String("dsn"); dsn != "" {
-				db = database.NewMySQL(dsn)
+				db = database.NewMySQL(dsn, c.Int("mysql-max-open-conns"))
 			} else {
 				db = database.NewBboltdb(c.String("data"))
 			}
