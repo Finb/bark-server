@@ -47,8 +47,8 @@ jobs:
           tags: |
             finab/bark-server:latest
             finab/bark-server:${{ steps.vars.outputs.build_version }}
-            ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ steps.vars.outputs.build_version }}          
+            ghcr.io/finb/bark-server:latest
+            ghcr.io/finb/bark-server:${{ steps.vars.outputs.build_version }}          
           push: true
       -
         name: Image digest
