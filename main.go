@@ -185,7 +185,7 @@ func main() {
 			})
 
 			fiberRouter := fiberApp.Group(c.String("url-prefix"))
-			routerAuth(c.String("user"), c.String("password"), fiberRouter)
+			routerAuth(c.String("user"), c.String("password"), fiberRouter, c.String("url-prefix"))
 			routerSetup(fiberRouter)
 
 			if serverless := c.Bool("serverless"); serverless {
