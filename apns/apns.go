@@ -28,6 +28,16 @@ type PushMessage struct {
 	ExtParams map[string]interface{} `form:"ext_params,omitempty" json:"ext_params,omitempty" xml:"ext_params,omitempty" query:"ext_params,omitempty"`
 }
 
+// Check if it's an empty message, empty messages might be silent push notifications
+func (p PushMessage) IsEmptyAlert() bool {
+	return p.Title == "" && p.Body == "" && p.Subtitle == ""
+}
+
+// Check if it's an encrypted push notification
+func (p PushMessage) IsEncrypted() bool {
+	return p.ExtParams["ciphertext"] != nil
+}
+
 const (
 	topic          = "me.fin.bark"
 	keyID          = "LH4T9V5U4R"
@@ -37,7 +47,7 @@ const (
 
 var clients = make(chan *apns2.Client, 1)
 
-// 初始化 APNS 客户端池
+// Initialize APNS client pool
 func init() {
 	ReCreateAPNS(1)
 }
@@ -84,7 +94,7 @@ func ReCreateAPNS(maxClientCount int) error {
 				},
 				Timeout: apns2.HTTPClientTimeout,
 			},
-			Host: apns2.HostProduction,
+			Host: apns2.HostDevelopment,
 		}
 		logger.Infof("create apns client: %d", i)
 		clients <- client
@@ -95,16 +105,24 @@ func ReCreateAPNS(maxClientCount int) error {
 }
 
 func Push(msg *PushMessage) error {
-	pl := payload.NewPayload().
-		AlertTitle(msg.Title).
-		AlertSubtitle(msg.Subtitle).
-		AlertBody(msg.Body).
-		Sound(msg.Sound).
-		Category("myNotificationCategory")
+	pl := payload.NewPayload().MutableContent()
+	pushType := apns2.PushTypeAlert
 
-	group, exist := msg.ExtParams["group"]
-	if exist {
-		pl = pl.ThreadID(group.(string))
+	if msg.IsEmptyAlert() {
+		// Silent push notification
+		pl = pl.ContentAvailable()
+		pushType = apns2.PushTypeBackground
+	} else {
+		// Regular push notification
+		pl = pl.AlertTitle(msg.Title).
+			AlertSubtitle(msg.Subtitle).
+			AlertBody(msg.Body).
+			Sound(msg.Sound).
+			Category("myNotificationCategory")
+		group, exist := msg.ExtParams["group"]
+		if exist {
+			pl = pl.ThreadID(group.(string))
+		}
 	}
 
 	for k, v := range msg.ExtParams {
@@ -119,8 +137,9 @@ func Push(msg *PushMessage) error {
 		CollapseID:  msg.Id,
 		DeviceToken: msg.DeviceToken,
 		Topic:       topic,
-		Payload:     pl.MutableContent(),
+		Payload:     pl,
 		Expiration:  time.Now().Add(24 * time.Hour),
+		PushType:    pushType,
 	})
 	if err != nil {
 		return err
