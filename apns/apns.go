@@ -17,6 +17,7 @@ import (
 )
 
 type PushMessage struct {
+	Id          string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty" query:"id,omitempty"`
 	DeviceToken string `form:"-" json:"-" xml:"-" query:"-"`
 	DeviceKey   string `form:"device_key,omitempty" json:"device_key,omitempty" xml:"device_key,omitempty" query:"device_key,omitempty"`
 	Subtitle    string `form:"subtitle,omitempty" json:"subtitle,omitempty" xml:"subtitle,omitempty" query:"subtitle,omitempty"`
@@ -115,6 +116,7 @@ func Push(msg *PushMessage) error {
 	clients <- client   // add the client back to the pool
 
 	resp, err := client.Push(&apns2.Notification{
+		CollapseID:  msg.Id,
 		DeviceToken: msg.DeviceToken,
 		Topic:       topic,
 		Payload:     pl.MutableContent(),

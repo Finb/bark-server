@@ -217,6 +217,8 @@ func push(params map[string]interface{}) (int, error) {
 		switch val := val.(type) {
 		case string:
 			switch strings.ToLower(string(key)) {
+			case "id":
+				msg.Id = val
 			case "device_key":
 				msg.DeviceKey = val
 			case "subtitle":
