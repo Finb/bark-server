@@ -94,7 +94,7 @@ func ReCreateAPNS(maxClientCount int) error {
 				},
 				Timeout: apns2.HTTPClientTimeout,
 			},
-			Host: apns2.HostDevelopment,
+			Host: apns2.HostProduction,
 		}
 		logger.Infof("create apns client: %d", i)
 		clients <- client
