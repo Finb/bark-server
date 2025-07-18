@@ -34,7 +34,8 @@ func (p PushMessage) IsEmptyAlert() bool {
 }
 
 func (p PushMessage) IsDelete() bool {
-	return p.ExtParams["delete"] == "1"
+	val := p.ExtParams["delete"]
+	return val == "1" || val == 1 || val == 1.0
 }
 
 const (
