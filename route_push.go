@@ -251,9 +251,9 @@ func push(params map[string]interface{}) (int, error) {
 		return 400, fmt.Errorf("device key is empty")
 	}
 
-	if msg.IsEmptyAlert() && msg.IsEncrypted() {
+	if msg.IsEmptyAlert() {
 		// For encrypted push notifications, a Body is required; otherwise, APNs will discard the notification
-		msg.Body = "Encrypted Message"
+		msg.Body = "Empty Message"
 	}
 
 	deviceToken, err := db.DeviceTokenByKey(msg.DeviceKey)

@@ -33,9 +33,8 @@ func (p PushMessage) IsEmptyAlert() bool {
 	return p.Title == "" && p.Body == "" && p.Subtitle == ""
 }
 
-// Check if it's an encrypted push notification
-func (p PushMessage) IsEncrypted() bool {
-	return p.ExtParams["ciphertext"] != nil
+func (p PushMessage) IsDelete() bool {
+	return p.ExtParams["delete"] == "1"
 }
 
 const (
@@ -107,8 +106,7 @@ func ReCreateAPNS(maxClientCount int) error {
 func Push(msg *PushMessage) error {
 	pl := payload.NewPayload().MutableContent()
 	pushType := apns2.PushTypeAlert
-
-	if msg.IsEmptyAlert() {
+	if msg.IsDelete() {
 		// Silent push notification
 		pl = pl.ContentAvailable()
 		pushType = apns2.PushTypeBackground
