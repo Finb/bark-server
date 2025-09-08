@@ -73,70 +73,6 @@ task linux_amd64_v3
 
 **Note: The linux amd64 v3 architecture was added in go 1.18, see [https://github.com/golang/go/wiki/MinimumRequirements#amd64](https://github.com/golang/go/wiki/MinimumRequirements#amd64)**
 
-### Nginx Proxy
-
-Most users want to deploy the bark server on the intranet server, and then use Nginx to reverse proxy the bark server;
-here is a simple Nginx configuration example (we assume that the bark server is listening at `192.168.1.123:8080`)
-
-```sh
-# generated 2020-03-26, Mozilla Guideline v5.4, nginx 1.17.7, OpenSSL 1.1.1d, modern configuration
-# https://ssl-config.mozilla.org/#server=nginx&version=1.17.7&config=modern&openssl=1.1.1d&guideline=5.4
-server {
-    listen 80;
-    listen [::]:80;
-    # Replace bark.app.dev with your real domain name.
-    server_name bark.app.dev;
-
-    return 301 https://$host$request_uri;
-}
-
-server {
-    listen 443 ssl http2;
-    listen [::]:443 ssl http2;
-    # Replace bark.app.dev with your real domain name.
-    server_name bark.app.dev;
-
-    ssl_certificate /path/to/signed_cert_plus_intermediates;
-    ssl_certificate_key /path/to/private_key;
-    ssl_session_timeout 1d;
-    ssl_session_cache shared:MozSSL:10m;  # about 40000 sessions
-    ssl_session_tickets off;
-
-    # modern configuration
-    ssl_protocols TLSv1.3;
-    ssl_prefer_server_ciphers off;
-
-    # HSTS (ngx_http_headers_module is required) (63072000 seconds)
-    add_header Strict-Transport-Security "max-age=63072000" always;
-
-    # OCSP stapling
-    ssl_stapling on;
-    ssl_stapling_verify on;
-
-    # verify chain of trust of OCSP response using Root CA and Intermediate certs
-    ssl_trusted_certificate /path/to/root_CA_cert_plus_intermediates;
-
-    # replace with the IP address of your resolver
-    #resolver 127.0.0.1;
-
-    location / {
-
-        log_not_found on;
-        # Replace http://192.168.1.123:8080 with the listening address of the bark server.
-        proxy_pass http://192.168.1.123:8080;
-
-        proxy_read_timeout 300;
-        proxy_connect_timeout 300;
-        proxy_redirect off;
-
-        proxy_set_header Host              $host;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Real-IP         $remote_addr;
-
-    }
-}
-```
-
 ### Use MySQL instead of Bbolt
 
 Just run the server with `-dsn=user:pass@tcp(mysql_host)/bark`, it will use MySQL instead of file database Bbolt
@@ -149,7 +85,7 @@ Please read [API_V2.md](docs/API_V2.md).
 
 ### 中文
 
-- [https://day.app/2018/06/bark-server-document](https://day.app/2018/06/bark-server-document)
+- [https://bark.day.app/#/deploy](https://bark.day.app/#/deploy)
 
 ### Markdown support:
 
