@@ -262,7 +262,12 @@ func push(params map[string]interface{}) (int, error) {
 	}
 	msg.DeviceToken = deviceToken
 
-	err = apns.Push(&msg)
+	code, err := apns.Push(&msg)
+
+	// Invalid token, delete it from database.
+	if code == 410 || (code == 400 && strings.Contains(err.Error(), "BadDeviceToken")) {
+		_, _ = db.SaveDeviceTokenByKey(msg.DeviceKey, "")
+	}
 	if err != nil {
 		return 500, fmt.Errorf("push failed: %v", err)
 	}

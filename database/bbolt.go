@@ -56,6 +56,9 @@ func (d *BboltDB) DeviceTokenByKey(key string) (string, error) {
 			return fmt.Errorf("failed to get [%s] device token from database", key)
 		} else {
 			token = string(bs)
+			if len(token) == 0 {
+				return fmt.Errorf("device token invalid")
+			}
 			return nil
 		}
 	})

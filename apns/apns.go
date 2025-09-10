@@ -104,7 +104,7 @@ func ReCreateAPNS(maxClientCount int) error {
 	return nil
 }
 
-func Push(msg *PushMessage) error {
+func Push(msg *PushMessage) (code int, err error) {
 	pl := payload.NewPayload().MutableContent()
 	pushType := apns2.PushTypeAlert
 	if msg.IsDelete() {
@@ -141,10 +141,10 @@ func Push(msg *PushMessage) error {
 		PushType:    pushType,
 	})
 	if err != nil {
-		return err
+		return 500, err
 	}
 	if resp.StatusCode != 200 {
-		return fmt.Errorf("APNS push failed: %s", resp.Reason)
+		return resp.StatusCode, fmt.Errorf(resp.Reason)
 	}
-	return nil
+	return 200, nil
 }
