@@ -76,7 +76,7 @@ func routeDoPushV1(c *fiber.Ctx) error {
 	// parse url path (highest priority)
 	pathParams, err := extractUrlPathParams(c)
 	if err != nil {
-		return c.Status(500).JSON(failed(400, "url path parse failed: %v", err))
+		return c.Status(400).JSON(failed(400, "url path parse failed: %v", err))
 	}
 	for key, val := range pathParams {
 		params[key] = val
@@ -102,7 +102,7 @@ func routeDoPushV2(c *fiber.Ctx) error {
 	// parse url path (highest priority)
 	pathParams, err := extractUrlPathParams(c)
 	if err != nil {
-		return c.Status(500).JSON(failed(400, "url path parse failed: %v", err))
+		return c.Status(400).JSON(failed(400, "url path parse failed: %v", err))
 	}
 	for key, val := range pathParams {
 		params[key] = val
