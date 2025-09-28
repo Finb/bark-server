@@ -50,6 +50,11 @@ func doRegister(c *fiber.Ctx, compat bool) error {
 		}
 	}
 
+	// DeviceToken length is variable, but should not be too long.
+	if len(deviceInfo.DeviceToken) > 128 {
+		return c.Status(400).JSON(failed(400, "device token is invalid"))
+	}
+
 	// if deviceInfo.DeviceKey=="", newKey will be filled with a new uuid
 	// otherwise it equal to deviceInfo.DeviceKey
 	newKey, err := db.SaveDeviceTokenByKey(deviceInfo.DeviceKey, deviceInfo.DeviceToken)
