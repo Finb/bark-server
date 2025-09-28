@@ -73,6 +73,11 @@ func (d *MySQL) SaveDeviceTokenByKey(key, token string) (string, error) {
 	return key, nil
 }
 
+func (d *MySQL) DeleteDeviceByKey(key string) error {
+	_, err := mysqlDB.Exec("DELETE FROM `devices` WHERE `key`=?", key)
+	return err
+}
+
 func (d *MySQL) Close() error {
 	return mysqlDB.Close()
 }

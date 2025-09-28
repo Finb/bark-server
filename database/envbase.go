@@ -30,6 +30,10 @@ func (d *EnvBase) SaveDeviceTokenByKey(key, token string) (string, error) {
 	return "nil", fmt.Errorf("device token is invalid")
 }
 
+func (d *EnvBase) DeleteDeviceByKey(key string) error {
+	return fmt.Errorf("not supported")
+}
+
 func (d *EnvBase) Close() error {
 	return nil
 }

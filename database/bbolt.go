@@ -92,6 +92,15 @@ func (d *BboltDB) SaveDeviceTokenByKey(key, deviceToken string) (string, error) 
 	return key, nil
 }
 
+// DeleteDeviceByKey delete device of specified key
+func (d *BboltDB) DeleteDeviceByKey(key string) error {
+	err := db.Update(func(tx *bbolt.Tx) error {
+		bucket := tx.Bucket([]byte(bucketName))
+		return bucket.Delete([]byte(key))
+	})
+	return err
+}
+
 // bboltSetup setup the bbolt database
 func bboltSetup(dataDir string) {
 	dbOnce.Do(func() {
