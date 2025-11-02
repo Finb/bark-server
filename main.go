@@ -40,6 +40,12 @@ func main() {
 				Value:   "0.0.0.0:8080",
 			},
 			&cli.StringFlag{
+				Name:    "unix-socket",
+				Usage:   "Server listen unix socket",
+				EnvVars: []string{"BARK_SERVER_UNIX_SOCKET"},
+				Value:   "",
+			},
+			&cli.StringFlag{
 				Name:    "url-prefix",
 				Usage:   "Serve URL Prefix",
 				EnvVars: []string{"BARK_SERVER_URL_PREFIX"},
@@ -159,6 +165,11 @@ func main() {
 			{Name: "Finb", Email: "to@day.app"},
 		},
 		Action: func(c *cli.Context) error {
+			network := "tcp"
+			if socket := c.String("unix-socket"); socket != "" {
+				network = "unix"
+			}
+
 			fiberApp := fiber.New(fiber.Config{
 				ServerHeader:      "Bark",
 				CaseSensitive:     c.Bool("case-sensitive"),
@@ -170,7 +181,7 @@ func main() {
 				ProxyHeader:       c.String("proxy-header"),
 				ReduceMemoryUsage: c.Bool("reduce-memory-usage"),
 				JSONEncoder:       jsoniter.Marshal,
-				Network:           "tcp",
+				Network:           network,
 				ErrorHandler: func(c *fiber.Ctx, err error) error {
 					code := fiber.StatusInternalServerError
 					if e, ok := err.(*fiber.Error); ok {
@@ -211,11 +222,17 @@ func main() {
 				}
 			}()
 
-			logger.Infof("Bark Server Listen at: %s , Database: %s", c.String("addr"), reflect.TypeOf(db))
-			if cert, key := c.String("cert"), c.String("key"); cert != "" && key != "" {
-				return fiberApp.ListenTLS(c.String("addr"), cert, key)
+			if network == "tcp" {
+				logger.Infof("Bark Server Listen at: %s , Database: %s", c.String("addr"), reflect.TypeOf(db))
+				if cert, key := c.String("cert"), c.String("key"); cert != "" && key != "" {
+					return fiberApp.ListenTLS(c.String("addr"), cert, key)
+				}
+				return fiberApp.Listen(c.String("addr"))
+			} else {
+				os.Remove(c.String("unix-socket"))
+				logger.Infof("Bark Server Listen at: %s , Database: %s", c.String("unix-socket"), reflect.TypeOf(db))
+				return fiberApp.Listen(c.String("unix-socket"))
 			}
-			return fiberApp.Listen(c.String("addr"))
 		},
 	}
 
