@@ -58,6 +58,42 @@ func main() {
 				Value:   "",
 			},
 			&cli.BoolFlag{
+				Name:    "mysql-tls",
+				Usage:   "Enable TLS/SSL for MySQL connections",
+				EnvVars: []string{"BARK_SERVER_MYSQL_TLS"},
+				Value:   false,
+			},
+			&cli.BoolFlag{
+				Name:    "mysql-tls-skip-verify",
+				Usage:   "Skip verification of the MySQL server's TLS/SSL certificate",
+				EnvVars: []string{"BARK_SERVER_MYSQL_TLS_SKIP_VERIFY"},
+				Value:   false,
+			},
+			&cli.StringFlag{
+				Name:    "mysql-ca",
+				Usage:   "MySQL TLS/SSL CA certificate file (PEM): /path/to/ca.pem",
+				EnvVars: []string{"BARK_SERVER_MYSQL_CA"},
+				Value:   "",
+			},
+			&cli.StringFlag{
+				Name:    "mysql-client-cert",
+				Usage:   "MySQL TLS/SSL client cert (PEM): /path/to/client-cert.pem",
+				EnvVars: []string{"BARK_SERVER_MYSQL_CLIENT_CERT"},
+				Value:   "",
+			},
+			&cli.StringFlag{
+				Name:    "mysql-client-key",
+				Usage:   "MySQL TLS/SSL client key (PEM): /path/to/client-key.pem",
+				EnvVars: []string{"BARK_SERVER_MYSQL_CLIENT_KEY"},
+				Value:   "",
+			},
+			&cli.StringFlag{
+				Name:    "mysql-tls-name",
+				Usage:   "Name of the TLS/SSL config to register for MySQL",
+				EnvVars: []string{"BARK_SERVER_MYSQL_TLS_NAME"},
+				Value:   "custom",
+			},
+			&cli.BoolFlag{
 				Name:    "serverless",
 				Usage:   "serverless mode",
 				EnvVars: []string{"BARK_SERVER_SERVERLESS"},
@@ -192,7 +228,16 @@ func main() {
 				// use system environment variable.
 				db = database.NewEnvBase()
 			} else if dsn := c.String("dsn"); dsn != "" {
-				db = database.NewMySQL(dsn)
+				if mysqlTLS := c.Bool("mysql-tls"); mysqlTLS {
+					db = database.NewMySQLWithTLS(dsn,
+						c.String("mysql-tls-name"),
+						c.String("mysql-ca"),
+						c.String("mysql-client-cert"),
+						c.String("mysql-client-key"),
+						c.Bool("mysql-tls-skip-verify"))
+				} else {
+					db = database.NewMySQL(dsn)
+				}
 			} else {
 				db = database.NewBboltdb(c.String("data"))
 			}

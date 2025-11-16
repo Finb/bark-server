@@ -1,8 +1,13 @@
 package database
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"database/sql"
+	"os"
+	"strings"
 
+	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/lithammer/shortuuid/v3"
 	"github.com/mritd/logger"
@@ -37,6 +42,53 @@ func NewMySQL(dsn string) Database {
 
 	mysqlDB = db
 	return &MySQL{}
+}
+
+func NewMySQLWithTLS(dsn, tlsName, caPath, certPath, keyPath string, isSkipVerify bool) Database {
+	// 1. Load and register TLS configuration
+	logger.Infof("MySQL TLS CA: %v", caPath)
+	logger.Infof("MySQL TLS client cert: %v", certPath)
+	logger.Infof("MySQL TLS client key: %v", keyPath)
+	logger.Infof("Server certificate verification skipped: %v", isSkipVerify)
+	rootCertPool := x509.NewCertPool()
+	pem, err := os.ReadFile(caPath)
+	if err != nil {
+		logger.Fatalf("failed to read CA cert: %v", err)
+	}
+	if ok := rootCertPool.AppendCertsFromPEM(pem); !ok {
+		logger.Fatalf("failed to append CA cert")
+	}
+
+	var certs []tls.Certificate
+	if certPath != "" && keyPath != "" {
+		clientCert, err := tls.LoadX509KeyPair(certPath, keyPath)
+		if err != nil {
+			logger.Fatalf("failed to load client cert and key: %v", err)
+		}
+		certs = []tls.Certificate{clientCert}
+	}
+
+	tlsConfig := &tls.Config{
+		RootCAs:            rootCertPool,
+		Certificates:       certs,
+		InsecureSkipVerify: isSkipVerify,
+	}
+
+	if err := mysql.RegisterTLSConfig(tlsName, tlsConfig); err != nil {
+		logger.Fatalf("failed to register TLS config: %v", err)
+	}
+
+	// 2. Append TLS parameter to DSN if missing
+	if !strings.Contains(dsn, "tls=") {
+		if strings.Contains(dsn, "?") {
+			dsn = dsn + "&tls=" + tlsName
+		} else {
+			dsn = dsn + "?tls=" + tlsName
+		}
+	}
+
+	// 3. Create and return the Database instance
+	return NewMySQL(dsn)
 }
 
 func (d *MySQL) CountAll() (int, error) {
