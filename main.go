@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"reflect"
+	"sync/atomic"
 	"syscall"
 	"time"
 
@@ -50,6 +51,7 @@ func main() {
 func runServer(c *cli.Context) error {
 	network := determineNetwork(c)
 	fiberApp := createFiberApp(c, network)
+	setupIdleShutdown(c, fiberApp)
 	setupRouter(c, fiberApp)
 	initializeDatabase(c)
 	setupGracefulShutdown(fiberApp)
@@ -126,6 +128,45 @@ func initializeDatabase(c *cli.Context) {
 	}
 
 	db = database.NewBboltdb(c.String("data"))
+}
+
+func setupIdleShutdown(c *cli.Context, fiberApp *fiber.App) {
+	timeout := c.Duration("shutdown-timeout")
+	if timeout <= 0 {
+		return
+	}
+
+	var lastActivityNano int64
+	atomic.StoreInt64(&lastActivityNano, time.Now().UnixNano())
+
+	fiberApp.Use(func(c *fiber.Ctx) error {
+		atomic.StoreInt64(&lastActivityNano, time.Now().UnixNano())
+		return c.Next()
+	})
+
+	logger.Infof("Idle shutdown enabled: %v", timeout)
+
+	go func() {
+		checkInterval := timeout / 2
+		if checkInterval > 1*time.Minute {
+			checkInterval = 1 * time.Minute
+		}
+
+		ticker := time.NewTicker(checkInterval)
+		defer ticker.Stop()
+
+		for range ticker.C {
+			last := atomic.LoadInt64(&lastActivityNano)
+			if time.Since(time.Unix(0, last)) > timeout {
+				logger.Infof("No activity for %v, shutting down...", timeout)
+
+				if err := fiberApp.Shutdown(); err != nil {
+					logger.Errorf("Graceful shutdown failed: %v", err)
+				}
+				return
+			}
+		}
+	}()
 }
 
 func setupGracefulShutdown(fiberApp *fiber.App) {
@@ -340,6 +381,12 @@ func getAppFlags() []cli.Flag {
 			EnvVars: []string{"BARK_SERVER_IDLE_TIMEOUT"},
 			Value:   10 * time.Second,
 			Hidden:  true,
+		},
+		&cli.DurationFlag{
+			Name:    "shutdown-timeout",
+			Usage:   "Shutdown server after N duration of inactivity (e.g. 10m). 0 to disable.",
+			EnvVars: []string{"BARK_SERVER_SHUTDOWN_TIMEOUT"},
+			Value:   0,
 		},
 	}
 }
