@@ -5,40 +5,44 @@ processing has been done for the V1 version API; users should use the new REST A
 the V2 version.**
 
 - [API V2](#api-v2)
-    * [Push](#push)
-        + [curl](#curl)
-        + [golang](#golang)
-        + [python](#python)
-        + [java](#java)
-        + [nodejs](#nodejs)
-        + [php](#php)
-    * [Misc](#misc)
-        + [Ping](#ping)
-        + [Healthz](#healthz)
-        + [Info](#info)
+  - [Push](#push)
+    - [curl](#curl)
+    - [golang](#golang)
+    - [python](#python)
+    - [java](#java)
+    - [nodejs](#nodejs)
+    - [php](#php)
+  - [MCP](#mcp)
+    - [Endpoints](#endpoints)
+    - [Examples](#examples)
+      - [Cherry Studio](#cherry-studio)
+  - [Misc](#misc)
+    - [Ping](#ping)
+    - [Healthz](#healthz)
+    - [Info](#info)
     
 ## Push
 
-| Field | Type | Description |
-| ----- | ---- | ----------- |
-| title (optional) | string | Notification title (font size would be larger than the body) |
-| subtitle (optional) | string | Notification subtitle |
-| body  | string | Notification content |
-| device_key | string | The key for each device |
-| device_keys (optional) | array | Used for batch pushing |
-| level (optional) | string | `'critical'`, `'active'`, `'timeSensitive'`, `'passive'` |
-| volume (optional) | string | The ringtone volume for critical alert notification. |
-| badge (optional) | integer | The number displayed next to App icon ([Apple Developer](https://developer.apple.com/documentation/usernotifications/unnotificationcontent/1649864-badge)) |
-| call (optional) | string | Must be `1`, The ringtone will continue to play for 30 seconds |
-| autoCopy (optional) | string | Must be `1` |
-| copy (optional) | string |  The value to be copied |
-| sound (optional) | string | Value from [here](https://github.com/Finb/Bark/tree/master/Sounds)， and custom ringtones are also available |
-| icon (optional) | string | An url to the icon, available only on iOS 15 or later |
-| group (optional) | string | The group of the notification |
-| ciphertext (optional) | string | The ciphertext of encrypted push notifications |
-| isArchive (optional) | string | Value must be `1`. Whether or not should be archived by the app |
-| url (optional) | string | Url that will jump when click notification |
-| action (optional) | string | Set to "none", tap notifications do nothing |
+| Field                  | Type    | Description                                                                                                                                                |
+| ---------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| title (optional)       | string  | Notification title (font size would be larger than the body)                                                                                               |
+| subtitle (optional)    | string  | Notification subtitle                                                                                                                                      |
+| body                   | string  | Notification content                                                                                                                                       |
+| device_key             | string  | The key for each device                                                                                                                                    |
+| device_keys (optional) | array   | Used for batch pushing                                                                                                                                     |
+| level (optional)       | string  | `'critical'`, `'active'`, `'timeSensitive'`, `'passive'`                                                                                                   |
+| volume (optional)      | string  | The ringtone volume for critical alert notification.                                                                                                       |
+| badge (optional)       | integer | The number displayed next to App icon ([Apple Developer](https://developer.apple.com/documentation/usernotifications/unnotificationcontent/1649864-badge)) |
+| call (optional)        | string  | Must be `1`, The ringtone will continue to play for 30 seconds                                                                                             |
+| autoCopy (optional)    | string  | Must be `1`                                                                                                                                                |
+| copy (optional)        | string  | The value to be copied                                                                                                                                     |
+| sound (optional)       | string  | Value from [here](https://github.com/Finb/Bark/tree/master/Sounds)， and custom ringtones are also available                                               |
+| icon (optional)        | string  | An url to the icon, available only on iOS 15 or later                                                                                                      |
+| group (optional)       | string  | The group of the notification                                                                                                                              |
+| ciphertext (optional)  | string  | The ciphertext of encrypted push notifications                                                                                                             |
+| isArchive (optional)   | string  | Value must be `1`. Whether or not should be archived by the app                                                                                            |
+| url (optional)         | string  | Url that will jump when click notification                                                                                                                 |
+| action (optional)      | string  | Set to "none", tap notifications do nothing                                                                                                                |
 
 ### curl
 
@@ -262,6 +266,47 @@ curl_setopt_array($curl, [
 $response = curl_exec($curl);
 curl_close($curl);
 echo $response;
+```
+
+## MCP
+
+Bark supports the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) via HTTP Streamable, allowing AI agents (like Claude Desktop, Cherry Studio or n8n) to send notifications directly through Bark.
+
+### Endpoints
+
+| Endpoint           | Description                                                                                                   |
+| ------------------ | ------------------------------------------------------------------------------------------------------------- |
+| `/mcp`             | Generic MCP endpoint. Requires `device_key` to be provided in the tool arguments.                             |
+| `/mcp/:device_key` | Device-specific MCP endpoint. The `device_key` is fixed by the URL, and the AI agent doesn't need to know it. |
+
+### Examples
+
+#### Cherry Studio
+
+Add the following to your Cherry Studio config:
+
+```json
+{
+  "mcpServers": {
+    "bark": {
+      "url": "http://127.0.0.1:8080/mcp",
+      "type": "streamableHttp"
+    }
+  }
+}
+```
+
+Or
+
+```json
+{
+  "mcpServers": {
+    "bark": {
+      "url": "http://127.0.0.1:8080/mcp/YOUR_DEVICE_KEY",
+      "type": "streamableHttp"
+    }
+  }
+}
 ```
 
 ## Misc
