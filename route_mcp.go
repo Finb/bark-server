@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -68,15 +67,9 @@ func setupSpecificMCPServer() *server.StreamableHTTPServer {
 }
 
 func notifyHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	argsJson, err := json.Marshal(request.Params.Arguments)
-	if err != nil {
-		return mcp.NewToolResultError("Failed to marshal arguments"), nil
-	}
-
-	var args map[string]any
-	err = json.Unmarshal(argsJson, &args)
-	if err != nil {
-		return mcp.NewToolResultError("Failed to unmarshal arguments"), nil
+	args, ok := request.Params.Arguments.(map[string]any)
+	if !ok {
+		return mcp.NewToolResultError("Invalid arguments format"), nil
 	}
 
 	// Resolve device_key: tool args > context (from URL)
