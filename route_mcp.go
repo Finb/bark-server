@@ -45,7 +45,6 @@ func setupMCPServer(defaultDeviceKey ...string) *server.StreamableHTTPServer {
 			mcp.Enum("critical", "active", "timeSensitive", "passive"),
 		),
 		mcp.WithNumber("badge", mcp.Description("Badge number")),
-		mcp.WithString("category", mcp.Description("Notification category")),
 		mcp.WithString("sound", mcp.Description("Notification sound")),
 		mcp.WithString("icon", mcp.Description("Notification icon URL")),
 		mcp.WithString("group", mcp.Description("Notification group")),
