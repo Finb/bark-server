@@ -7,6 +7,7 @@ go 1.23.0
 toolchain go1.24.1
 
 require (
+	github.com/coreos/go-systemd/v22 v22.6.0
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/gofiber/adaptor/v2 v2.2.1
 	github.com/gofiber/fiber/v2 v2.52.9

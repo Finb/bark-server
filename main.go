@@ -11,6 +11,8 @@ import (
 	"github.com/finb/bark-server/v2/apns"
 	"github.com/finb/bark-server/v2/database"
 
+	"github.com/coreos/go-systemd/v22/activation"
+
 	jsoniter "github.com/json-iterator/go"
 
 	"github.com/gofiber/fiber/v2"
@@ -56,6 +58,9 @@ func runServer(c *cli.Context) error {
 
 // determineNetwork checks if unix socket is configured
 func determineNetwork(c *cli.Context) string {
+	if os.Getenv("LISTEN_FDS") != "" {
+		return "systemd"
+	}
 	if c.String("unix-socket") != "" {
 		return "unix"
 	}
@@ -140,6 +145,20 @@ func setupGracefulShutdown(fiberApp *fiber.App) {
 }
 
 func startServer(c *cli.Context, fiberApp *fiber.App, network string) error {
+	if network == "systemd" {
+		listeners, err := activation.Listeners()
+		if err != nil {
+			return fmt.Errorf("failed to get systemd listeners: %v", err)
+		}
+		if len(listeners) == 0 {
+			return fmt.Errorf("no systemd listeners found")
+		}
+
+		l := listeners[0]
+		logger.Infof("Bark Server Listen at Systemd Socket (%s), Database: %s", l.Addr(), reflect.TypeOf(db))
+
+		return fiberApp.Listener(l)
+	}
 	if network == "tcp" {
 		addr := c.String("addr")
 		logger.Infof("Bark Server Listen at: %s , Database: %s", addr, reflect.TypeOf(db))
