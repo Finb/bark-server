@@ -4,24 +4,6 @@
 
 [Bark](https://github.com/Finb/Bark) is an iOS App which allows you to push customed notifications to your iPhone.
 
-
-## Table of Contents
-
-   * [Bark](#bark)
-      * [Installation](#installation)
-         * [For Docker User](#for-docker-user)
-         * [For General User](#for-general-user)
-         * [For Developer](#for-developer)
-         * [Nginx Proxy](#nginx-proxy)
-      * [API V2](#api-v2)
-      * [Other](#other)
-         * [中文](#中文)
-         * [Markdown Support](#markdown-support)         
-      * [Contributing to bark-server](#contributing-to-bark-server)
-         * [Development environment](#development-environment)
-      * [Update](#update)
-
-
 ## Installation
 
 ### For Docker User
@@ -77,30 +59,8 @@ task linux_amd64_v3
 
 Just run the server with `-dsn=user:pass@tcp(mysql_host)/bark`, it will use MySQL instead of file database Bbolt
 
-## API V2
+## Others
 
-Please read [API_V2.md](docs/API_V2.md).
+* [API_V2.md](docs/API_V2.md).
+* [MCP.md](docs/MCP.md).
 
-## Other
-
-### 中文
-
-- [https://bark.day.app/#/deploy](https://bark.day.app/#/deploy)
-
-### Markdown support:
-
-- [https://github.com/adams549659584/bark-server](https://github.com/adams549659584/bark-server)
-
-## Contributing to bark-server
-
-### Development environment
-
-This project requires at least the golang 1.12 version to compile and requires Go mod support.
-
-- Golang 1.16
-- GoLand 2020.3 or other Go IDE
-- Docker(Optional)
-
-## Update 
-
-Now the push certificate embedded in the program will never expire. You only need to update the program if the push fails due to the expired certificate.
