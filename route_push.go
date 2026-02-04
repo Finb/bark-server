@@ -261,12 +261,6 @@ func push(params map[string]interface{}) (int, error) {
 		return 400, fmt.Errorf("failed to get device token: %v", err)
 	}
 
-	// Remove deviceToken if it’s too long, to clean up junk data.
-	if len(deviceToken) > 128 {
-		_ = db.DeleteDeviceByKey(msg.DeviceKey)
-		return 400, fmt.Errorf("invalid device token, has been removed")
-	}
-
 	msg.DeviceToken = deviceToken
 
 	code, err := apns.Push(&msg)

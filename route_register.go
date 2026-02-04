@@ -51,7 +51,7 @@ func doRegister(c *fiber.Ctx, compat bool) error {
 	}
 
 	// DeviceToken length is variable, but should not be too long.
-	if len(deviceInfo.DeviceToken) > 128 {
+	if len(deviceInfo.DeviceToken) > 160 {
 		return c.Status(400).JSON(failed(400, "device token is invalid"))
 	}
 
