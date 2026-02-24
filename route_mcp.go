@@ -51,7 +51,10 @@ func setupGenericMCPServer() *server.StreamableHTTPServer {
 	)
 
 	s.AddTool(mcp.NewTool("notify", opts...), notifyHandler)
-	return server.NewStreamableHTTPServer(s)
+	return server.NewStreamableHTTPServer(s,
+		// Disable SSE streaming to avoid long-lived server->client connections on this deployment path.
+		server.WithDisableStreaming(true),
+	)
 }
 
 func setupSpecificMCPServer() *server.StreamableHTTPServer {
@@ -61,7 +64,10 @@ func setupSpecificMCPServer() *server.StreamableHTTPServer {
 	)
 
 	s.AddTool(mcp.NewTool("notify", getCommonToolOpts()...), notifyHandler)
-	return server.NewStreamableHTTPServer(s)
+	return server.NewStreamableHTTPServer(s,
+		// Disable SSE streaming to avoid long-lived server->client connections on this deployment path.
+		server.WithDisableStreaming(true),
+	)
 }
 
 func notifyHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
