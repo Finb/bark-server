@@ -34,6 +34,10 @@ func (d *EnvBase) DeleteDeviceByKey(key string) error {
 	return fmt.Errorf("not supported")
 }
 
+func (d *EnvBase) RotateDeviceKey(oldKey string) (string, error) {
+	return "", fmt.Errorf("key rotation is not supported in serverless mode")
+}
+
 func (d *EnvBase) Close() error {
 	return nil
 }

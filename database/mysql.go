@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"database/sql"
+	"fmt"
 	"os"
 	"strings"
 
@@ -128,6 +129,37 @@ func (d *MySQL) SaveDeviceTokenByKey(key, token string) (string, error) {
 func (d *MySQL) DeleteDeviceByKey(key string) error {
 	_, err := mysqlDB.Exec("DELETE FROM `devices` WHERE `key`=?", key)
 	return err
+}
+
+func (d *MySQL) RotateDeviceKey(oldKey string) (string, error) {
+	newKey := shortuuid.New()
+	tx, err := mysqlDB.Begin()
+	if err != nil {
+		return "", err
+	}
+	defer func() {
+		if err != nil {
+			_ = tx.Rollback()
+		}
+	}()
+
+	var token string
+	if err = tx.QueryRow("SELECT `token` FROM `devices` WHERE `key`=? FOR UPDATE", oldKey).Scan(&token); err != nil {
+		return "", fmt.Errorf("device key not found: %s", oldKey)
+	}
+
+	if _, err = tx.Exec("INSERT INTO `devices` (`key`,`token`) VALUES (?,?)", newKey, token); err != nil {
+		return "", err
+	}
+
+	if _, err = tx.Exec("DELETE FROM `devices` WHERE `key`=?", oldKey); err != nil {
+		return "", err
+	}
+
+	if err = tx.Commit(); err != nil {
+		return "", err
+	}
+	return newKey, nil
 }
 
 func (d *MySQL) Close() error {

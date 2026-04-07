@@ -45,6 +45,10 @@ func (d *MemBase) DeleteDeviceByKey(key string) error {
 	return nil
 }
 
+func (d *MemBase) RotateDeviceKey(oldKey string) (string, error) {
+	return "", fmt.Errorf("key rotation is not supported in memory mode")
+}
+
 func (d *MemBase) Close() error {
 	return nil
 }

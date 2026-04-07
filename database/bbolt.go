@@ -92,6 +92,32 @@ func (d *BboltDB) SaveDeviceTokenByKey(key, deviceToken string) (string, error) 
 	return key, nil
 }
 
+// RotateDeviceKey atomically moves the device token to a new key and deletes the old key
+func (d *BboltDB) RotateDeviceKey(oldKey string) (string, error) {
+	newKey := shortuuid.New()
+	err := db.Update(func(tx *bbolt.Tx) error {
+		bucket := tx.Bucket([]byte(bucketName))
+
+		bs := bucket.Get([]byte(oldKey))
+		if bs == nil {
+			return fmt.Errorf("device key not found: %s", oldKey)
+		}
+		token := string(bs)
+		if len(token) == 0 {
+			return fmt.Errorf("device token invalid")
+		}
+
+		if err := bucket.Put([]byte(newKey), []byte(token)); err != nil {
+			return err
+		}
+		return bucket.Delete([]byte(oldKey))
+	})
+	if err != nil {
+		return "", err
+	}
+	return newKey, nil
+}
+
 // DeleteDeviceByKey delete device of specified key
 func (d *BboltDB) DeleteDeviceByKey(key string) error {
 	err := db.Update(func(tx *bbolt.Tx) error {

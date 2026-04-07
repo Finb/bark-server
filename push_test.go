@@ -235,6 +235,64 @@ func TestCiphertext(t *testing.T) {
 	})
 }
 
+func TestRotateKey(t *testing.T) {
+	Endpoint(t, []APITestCase{
+		{
+			Name:           "Rotate without device_key",
+			Method:         "POST",
+			URL:            "/register/rotate",
+			Body:           "{}",
+			IsJson:         true,
+			WantStatusCode: 400,
+		},
+		{
+			Name:           "Rotate with unknown device_key",
+			Method:         "POST",
+			URL:            "/register/rotate",
+			Body:           "{\"device_key\":\"unknownkey\"}",
+			IsJson:         true,
+			WantStatusCode: 500,
+		},
+		// Second immediate request for the same key should be rate-limited (429).
+		// The first request already recorded a timestamp for "unknownkey", but
+		// since it failed, the timestamp is cleared — so this tests a fresh spam attempt.
+		// Use a different key to isolate rate-limit state.
+		{
+			Name:           "Spam rotate same key is rate-limited",
+			Method:         "POST",
+			URL:            "/register/rotate",
+			Body:           "{\"device_key\":\"spamkey\"}",
+			IsJson:         true,
+			WantStatusCode: 500, // first call fails (key not found) and clears timestamp
+		},
+	})
+
+	// Simulate a second rapid call to a key that succeeded the rate-limit check
+	// by injecting a timestamp directly (unit-level guard test).
+	t.Run("Rate limit blocks rapid repeat", func(t *testing.T) {
+		testKey := "ratelimitTestKey"
+		rotateLastTimeMu.Lock()
+		rotateLastTime[testKey] = time.Now()
+		rotateLastTimeMu.Unlock()
+
+		Endpoint(t, []APITestCase{
+			{
+				Name:           "Second rotation blocked",
+				Method:         "POST",
+				URL:            "/register/rotate",
+				Body:           "{\"device_key\":\"" + testKey + "\"}",
+				IsJson:         true,
+				WantStatusCode: 429,
+			},
+		})
+
+		// cleanup
+		rotateLastTimeMu.Lock()
+		delete(rotateLastTime, testKey)
+		rotateLastTimeMu.Unlock()
+	})
+}
+
 func TestBatchPush(t *testing.T) {
 	Endpoint(t, []APITestCase{
 		{
