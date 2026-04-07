@@ -6,6 +6,6 @@ type Database interface {
 	DeviceTokenByKey(key string) (string, error)            //Get specified device's token
 	SaveDeviceTokenByKey(key, token string) (string, error) //Create or update specified devices's token
 	DeleteDeviceByKey(key string) error                     //Delete specified device
-	RotateDeviceKey(oldKey string) (string, error)          //Atomically rotate device key, returning new key
+	RotateDeviceKey(oldKey, deviceToken string) (string, error) //Atomically rotate device key after verifying ownership via deviceToken
 	Close() error                                           //Close the database
 }

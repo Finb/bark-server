@@ -92,8 +92,9 @@ func (d *BboltDB) SaveDeviceTokenByKey(key, deviceToken string) (string, error) 
 	return key, nil
 }
 
-// RotateDeviceKey atomically moves the device token to a new key and deletes the old key
-func (d *BboltDB) RotateDeviceKey(oldKey string) (string, error) {
+// RotateDeviceKey atomically moves the device token to a new key and deletes the old key.
+// deviceToken must match the stored token to prove the caller owns the device.
+func (d *BboltDB) RotateDeviceKey(oldKey, deviceToken string) (string, error) {
 	newKey := shortuuid.New()
 	err := db.Update(func(tx *bbolt.Tx) error {
 		bucket := tx.Bucket([]byte(bucketName))
@@ -102,12 +103,15 @@ func (d *BboltDB) RotateDeviceKey(oldKey string) (string, error) {
 		if bs == nil {
 			return fmt.Errorf("device key not found: %s", oldKey)
 		}
-		token := string(bs)
-		if len(token) == 0 {
+		storedToken := string(bs)
+		if len(storedToken) == 0 {
 			return fmt.Errorf("device token invalid")
 		}
+		if storedToken != deviceToken {
+			return fmt.Errorf("device token mismatch: ownership verification failed")
+		}
 
-		if err := bucket.Put([]byte(newKey), []byte(token)); err != nil {
+		if err := bucket.Put([]byte(newKey), []byte(storedToken)); err != nil {
 			return err
 		}
 		return bucket.Delete([]byte(oldKey))

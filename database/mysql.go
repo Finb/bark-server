@@ -131,7 +131,7 @@ func (d *MySQL) DeleteDeviceByKey(key string) error {
 	return err
 }
 
-func (d *MySQL) RotateDeviceKey(oldKey string) (string, error) {
+func (d *MySQL) RotateDeviceKey(oldKey, deviceToken string) (string, error) {
 	newKey := shortuuid.New()
 	tx, err := mysqlDB.Begin()
 	if err != nil {
@@ -143,12 +143,16 @@ func (d *MySQL) RotateDeviceKey(oldKey string) (string, error) {
 		}
 	}()
 
-	var token string
-	if err = tx.QueryRow("SELECT `token` FROM `devices` WHERE `key`=? FOR UPDATE", oldKey).Scan(&token); err != nil {
+	var storedToken string
+	if err = tx.QueryRow("SELECT `token` FROM `devices` WHERE `key`=? FOR UPDATE", oldKey).Scan(&storedToken); err != nil {
 		return "", fmt.Errorf("device key not found: %s", oldKey)
 	}
+	if storedToken != deviceToken {
+		err = fmt.Errorf("device token mismatch: ownership verification failed")
+		return "", err
+	}
 
-	if _, err = tx.Exec("INSERT INTO `devices` (`key`,`token`) VALUES (?,?)", newKey, token); err != nil {
+	if _, err = tx.Exec("INSERT INTO `devices` (`key`,`token`) VALUES (?,?)", newKey, storedToken); err != nil {
 		return "", err
 	}
 

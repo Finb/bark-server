@@ -1,20 +1,8 @@
 package main
 
 import (
-	"sync"
-	"time"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/mritd/logger"
-)
-
-// rotateRateLimit enforces a per-key cooldown to prevent spam rotation.
-// A key can only be rotated at most once per rotateMinInterval.
-const rotateMinInterval = 5 * time.Minute
-
-var (
-	rotateLastTime   = map[string]time.Time{}
-	rotateLastTimeMu sync.Mutex
 )
 
 func init() {
@@ -23,6 +11,14 @@ func init() {
 	})
 }
 
+// doRotateKey handles POST /register/rotate.
+//
+// Security model: device_key is public (it appears in push URLs). Anyone who
+// knows the key could call this endpoint and rotate it, permanently invalidating
+// the victim's push URL. To prevent this, the caller must also supply
+// device_token — the APNs token that is only available on the physical device
+// and is never embedded in push URLs. The server verifies the token matches
+// what is stored before performing the rotation.
 func doRotateKey(c *fiber.Ctx) error {
 	var deviceInfo DeviceInfo
 	if err := c.BodyParser(&deviceInfo); err != nil {
@@ -32,39 +28,27 @@ func doRotateKey(c *fiber.Ctx) error {
 	if deviceInfo.DeviceKey == "" && deviceInfo.OldDeviceKey != "" {
 		deviceInfo.DeviceKey = deviceInfo.OldDeviceKey
 	}
+	if deviceInfo.DeviceToken == "" && deviceInfo.OldDeviceToken != "" {
+		deviceInfo.DeviceToken = deviceInfo.OldDeviceToken
+	}
 
 	if deviceInfo.DeviceKey == "" {
 		return c.Status(400).JSON(failed(400, "device_key is required"))
 	}
-
-	// Rate-limit: reject if this key was rotated too recently.
-	rotateLastTimeMu.Lock()
-	lastTime, seen := rotateLastTime[deviceInfo.DeviceKey]
-	if seen && time.Since(lastTime) < rotateMinInterval {
-		rotateLastTimeMu.Unlock()
-		remaining := rotateMinInterval - time.Since(lastTime)
-		return c.Status(429).JSON(failed(429, "rotation rate limit exceeded, please wait %ds before rotating again", int(remaining.Seconds())+1))
+	if deviceInfo.DeviceToken == "" {
+		return c.Status(400).JSON(failed(400, "device_token is required for ownership verification"))
 	}
-	// Record the attempt before releasing the lock so concurrent requests are blocked.
-	rotateLastTime[deviceInfo.DeviceKey] = time.Now()
-	rotateLastTimeMu.Unlock()
 
-	newKey, err := db.RotateDeviceKey(deviceInfo.DeviceKey)
+	newKey, err := db.RotateDeviceKey(deviceInfo.DeviceKey, deviceInfo.DeviceToken)
 	if err != nil {
-		// On failure, clear the rate-limit timestamp so the user can retry.
-		rotateLastTimeMu.Lock()
-		delete(rotateLastTime, deviceInfo.DeviceKey)
-		rotateLastTimeMu.Unlock()
-
-		logger.Errorf("device key rotation failed: %v", err)
+		// Distinguish ownership failures from other errors so the client can
+		// show a meaningful message without leaking internals.
+		logger.Errorf("device key rotation failed for key %s: %v", deviceInfo.DeviceKey, err)
+		if err.Error() == "device token mismatch: ownership verification failed" {
+			return c.Status(401).JSON(failed(401, "ownership verification failed: device_token does not match"))
+		}
 		return c.Status(500).JSON(failed(500, "device key rotation failed: %v", err))
 	}
-
-	// After a successful rotation, track the new key's cooldown instead.
-	rotateLastTimeMu.Lock()
-	rotateLastTime[newKey] = time.Now()
-	delete(rotateLastTime, deviceInfo.DeviceKey)
-	rotateLastTimeMu.Unlock()
 
 	logger.Infof("device key rotated: %s -> %s", deviceInfo.DeviceKey, newKey)
 
