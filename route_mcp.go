@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gofiber/adaptor/v2"
 	"github.com/gofiber/fiber/v2"
@@ -14,6 +15,7 @@ import (
 type contextKey string
 
 const deviceKeyCtxKey contextKey = "device_key"
+const mcpSessionIdleTTL = 10 * time.Minute
 
 func init() {
 	registerRoute("mcp", func(router fiber.Router) {
@@ -54,6 +56,7 @@ func setupGenericMCPServer() *server.StreamableHTTPServer {
 	return server.NewStreamableHTTPServer(s,
 		// Disable SSE streaming to avoid long-lived server->client connections on this deployment path.
 		server.WithDisableStreaming(true),
+		server.WithSessionIdleTTL(mcpSessionIdleTTL),
 	)
 }
 
@@ -67,6 +70,7 @@ func setupSpecificMCPServer() *server.StreamableHTTPServer {
 	return server.NewStreamableHTTPServer(s,
 		// Disable SSE streaming to avoid long-lived server->client connections on this deployment path.
 		server.WithDisableStreaming(true),
+		server.WithSessionIdleTTL(mcpSessionIdleTTL),
 	)
 }
 
