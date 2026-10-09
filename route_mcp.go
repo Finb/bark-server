@@ -40,7 +40,7 @@ func init() {
 
 func setupGenericMCPServer() *server.StreamableHTTPServer {
 	s := server.NewMCPServer("Bark MCP Server", version,
-		server.WithToolCapabilities(true),
+		server.WithToolCapabilities(false),
 		server.WithRecovery(),
 	)
 
@@ -62,7 +62,7 @@ func setupGenericMCPServer() *server.StreamableHTTPServer {
 
 func setupSpecificMCPServer() *server.StreamableHTTPServer {
 	s := server.NewMCPServer("Bark MCP Server (Specific)", version,
-		server.WithToolCapabilities(true),
+		server.WithToolCapabilities(false),
 		server.WithRecovery(),
 	)
 
