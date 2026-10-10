@@ -263,5 +263,13 @@ tasks:
   release:
     cmds:
       - task: default
-      - if gh release view {{.BUILD_VERSION}} >/dev/null 2>&1; then gh release edit {{.BUILD_VERSION}} --title "Bump {{.BUILD_VERSION}}" --notes "./bark-server -addr 0.0.0.0:8080 -data ./bark-data"; else gh release create {{.BUILD_VERSION}} --title "Bump {{.BUILD_VERSION}}" --notes "./bark-server -addr 0.0.0.0:8080 -data ./bark-data"; fi
+      - |
+        NOTES='```
+        ./bark-server -addr 0.0.0.0:8080 -data ./bark-data
+        ```'
+        if gh release view {{.BUILD_VERSION}} >/dev/null 2>&1; then
+          gh release edit {{.BUILD_VERSION}} --title "Bump {{.BUILD_VERSION}}" --notes "$NOTES"
+        else
+          gh release create {{.BUILD_VERSION}} --title "Bump {{.BUILD_VERSION}}" --notes "$NOTES"
+        fi
       - gh release upload {{.BUILD_VERSION}} dist/* --clobber
