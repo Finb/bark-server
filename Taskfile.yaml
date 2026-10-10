@@ -16,7 +16,7 @@ tasks:
       - mkdir dist
   copy-resource:
     cmds:
-      - cp deploy/* dist
+      - for file in deploy/*; do if [ -f "$file" ]; then cp "$file" dist/; fi; done
   build-tpl:
     label: build-{{.TASK}}
     cmds:
@@ -263,4 +263,5 @@ tasks:
   release:
     cmds:
       - task: default
-      - ghr -u finb -t $GITHUB_TOKEN -replace -recreate -name "Bump {{.BUILD_VERSION}}" --debug {{.BUILD_VERSION}} dist
+      - if gh release view {{.BUILD_VERSION}} >/dev/null 2>&1; then gh release edit {{.BUILD_VERSION}} --title "Bump {{.BUILD_VERSION}}" --notes "./bark-server -addr 0.0.0.0:8080 -data ./bark-data"; else gh release create {{.BUILD_VERSION}} --title "Bump {{.BUILD_VERSION}}" --notes "./bark-server -addr 0.0.0.0:8080 -data ./bark-data"; fi
+      - gh release upload {{.BUILD_VERSION}} dist/* --clobber

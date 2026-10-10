@@ -7,10 +7,21 @@ on:
 jobs:
   docker:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
     steps:
       -
         name: Checkout
         uses: actions/checkout@v4
+      -
+        name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      -
+        name: Set up Task
+        uses: go-task/setup-task@v1
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -32,7 +43,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Environment Variable
         id: vars
-        run: echo "::set-output name=build_version::$(git describe --tags)"
+        run: echo "build_version=$(git describe --tags)" >> "$GITHUB_OUTPUT"
       -
         name: Build and push
         id: docker_build
@@ -53,3 +64,8 @@ jobs:
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
+      -
+        name: Create GitHub Release
+        run: task release
+        env:
+          GH_TOKEN: ${{ github.token }}
