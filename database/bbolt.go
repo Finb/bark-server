@@ -1,6 +1,7 @@
 package database
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -49,29 +50,35 @@ func (d *BboltDB) Close() error {
 }
 
 // DeviceTokenByKey get device token of specified key
-func (d *BboltDB) DeviceTokenByKey(key string) (string, error) {
-	var token string
+func (d *BboltDB) DeviceTokenByKey(key string) (*DeviceRecord, error) {
+	var record *DeviceRecord
 	err := db.View(func(tx *bbolt.Tx) error {
 		if bs := tx.Bucket([]byte(bucketName)).Get([]byte(key)); bs == nil {
 			return fmt.Errorf("failed to get [%s] device token from database", key)
 		} else {
-			token = string(bs)
-			if len(token) == 0 {
+			record = parseDeviceRecord(string(bs))
+			if record.Token == "" {
 				return fmt.Errorf("device token invalid")
 			}
 			return nil
 		}
 	})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return token, nil
+	return record, nil
 }
 
 // SaveDeviceToken create or update device token of specified key
-func (d *BboltDB) SaveDeviceTokenByKey(key, deviceToken string) (string, error) {
-	err := db.Update(func(tx *bbolt.Tx) error {
+func (d *BboltDB) SaveDeviceTokenByKey(key, deviceToken, deviceType string) (string, error) {
+	record := DeviceRecord{Token: deviceToken, Type: normalizeDeviceType(deviceType)}
+	data, err := json.Marshal(record)
+	if err != nil {
+		return "", err
+	}
+
+	err = db.Update(func(tx *bbolt.Tx) error {
 		bucket := tx.Bucket([]byte(bucketName))
 
 		// If the deviceKey is empty or the corresponding deviceToken cannot be obtained from the database,
@@ -82,7 +89,7 @@ func (d *BboltDB) SaveDeviceTokenByKey(key, deviceToken string) (string, error) 
 		}
 
 		// update the deviceToken
-		return bucket.Put([]byte(key), []byte(deviceToken))
+		return bucket.Put([]byte(key), data)
 	})
 
 	if err != nil {

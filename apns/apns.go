@@ -19,6 +19,7 @@ import (
 type PushMessage struct {
 	Id          string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty" query:"id,omitempty"`
 	DeviceToken string `form:"-" json:"-" xml:"-" query:"-"`
+	DeviceType  string `form:"-" json:"-" xml:"-" query:"-"`
 	DeviceKey   string `form:"device_key,omitempty" json:"device_key,omitempty" xml:"device_key,omitempty" query:"device_key,omitempty"`
 	Subtitle    string `form:"subtitle,omitempty" json:"subtitle,omitempty" xml:"subtitle,omitempty" query:"subtitle,omitempty"`
 	Title       string `form:"title,omitempty" json:"title,omitempty" xml:"title,omitempty" query:"title,omitempty"`
@@ -40,6 +41,7 @@ func (p PushMessage) IsDelete() bool {
 
 const (
 	topic          = "me.fin.bark"
+	watchOSTopic   = "me.fin.BarkWatch"
 	keyID          = "LH4T9V5U4R"
 	teamID         = "5U8LBRXG3A"
 	PayloadMaximum = 4096
@@ -132,10 +134,15 @@ func Push(msg *PushMessage) (code int, err error) {
 	client := <-clients // grab a client from the pool
 	clients <- client   // add the client back to the pool
 
+	notificationTopic := topic
+	if msg.DeviceType == "watchos" {
+		notificationTopic = watchOSTopic
+	}
+
 	resp, err := client.Push(&apns2.Notification{
 		CollapseID:  msg.Id,
 		DeviceToken: msg.DeviceToken,
-		Topic:       topic,
+		Topic:       notificationTopic,
 		Payload:     pl,
 		Expiration:  time.Now().Add(24 * time.Hour),
 		PushType:    pushType,
@@ -144,7 +151,7 @@ func Push(msg *PushMessage) (code int, err error) {
 		return 500, err
 	}
 	if resp.StatusCode != 200 {
-		return resp.StatusCode, fmt.Errorf(resp.Reason)
+		return resp.StatusCode, fmt.Errorf("%s", resp.Reason)
 	}
 	return 200, nil
 }

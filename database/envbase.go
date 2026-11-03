@@ -16,14 +16,17 @@ func (d *EnvBase) CountAll() (int, error) {
 	return 1, nil
 }
 
-func (d *EnvBase) DeviceTokenByKey(key string) (string, error) {
+func (d *EnvBase) DeviceTokenByKey(key string) (*DeviceRecord, error) {
 	if key == os.Getenv("BARK_KEY") {
-		return os.Getenv("BARK_DEVICE_TOKEN"), nil
+		return &DeviceRecord{
+			Token: os.Getenv("BARK_DEVICE_TOKEN"),
+			Type:  normalizeDeviceType(os.Getenv("BARK_DEVICE_TYPE")),
+		}, nil
 	}
-	return "nil", fmt.Errorf("key not found")
+	return nil, fmt.Errorf("key not found")
 }
 
-func (d *EnvBase) SaveDeviceTokenByKey(key, token string) (string, error) {
+func (d *EnvBase) SaveDeviceTokenByKey(key, token, deviceType string) (string, error) {
 	if token == os.Getenv("BARK_DEVICE_TOKEN") {
 		return os.Getenv("BARK_KEY"), nil
 	}

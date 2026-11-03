@@ -26,7 +26,7 @@ func TestMain(m *testing.M) {
 		panic("deviceToken is not set")
 	}
 	db = database.NewMemBase()
-	db.SaveDeviceTokenByKey(key, deviceToken)
+	db.SaveDeviceTokenByKey(key, deviceToken, database.DeviceTypeIOS)
 	app = NewServer()
 	m.Run()
 }

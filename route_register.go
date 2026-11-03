@@ -1,6 +1,10 @@
 package main
 
 import (
+	"strings"
+
+	"github.com/finb/bark-server/v2/database"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/mritd/logger"
 )
@@ -8,6 +12,7 @@ import (
 type DeviceInfo struct {
 	DeviceKey   string `form:"device_key,omitempty" json:"device_key,omitempty" xml:"device_key,omitempty" query:"device_key,omitempty"`
 	DeviceToken string `form:"device_token,omitempty" json:"device_token,omitempty" xml:"device_token,omitempty" query:"device_token,omitempty"`
+	DeviceType  string `form:"device_type,omitempty" json:"device_type,omitempty" xml:"device_type,omitempty" query:"device_type,omitempty"`
 
 	// compatible with old req
 	OldDeviceKey   string `form:"key,omitempty" json:"key,omitempty" xml:"key,omitempty" query:"key,omitempty"`
@@ -55,9 +60,19 @@ func doRegister(c *fiber.Ctx, compat bool) error {
 		return c.Status(400).JSON(failed(400, "device token is invalid"))
 	}
 
+	// device type is used to select the APNs topic when pushing; default to ios for compatibility
+	deviceType := strings.ToLower(deviceInfo.DeviceType)
+	if deviceType == "" {
+		deviceType = database.DeviceTypeIOS
+	}
+	if deviceType != database.DeviceTypeIOS && deviceType != database.DeviceTypeWatchOS {
+		return c.Status(400).JSON(failed(400, "invalid device type: %s", deviceInfo.DeviceType))
+	}
+	deviceInfo.DeviceType = deviceType
+
 	// if deviceInfo.DeviceKey=="", newKey will be filled with a new uuid
 	// otherwise it equal to deviceInfo.DeviceKey
-	newKey, err := db.SaveDeviceTokenByKey(deviceInfo.DeviceKey, deviceInfo.DeviceToken)
+	newKey, err := db.SaveDeviceTokenByKey(deviceInfo.DeviceKey, deviceInfo.DeviceToken, deviceInfo.DeviceType)
 	if err != nil {
 		logger.Errorf("device registration failed: %v", err)
 		return c.Status(500).JSON(failed(500, "device registration failed: %v", err))
@@ -69,6 +84,7 @@ func doRegister(c *fiber.Ctx, compat bool) error {
 		"key":          deviceInfo.DeviceKey,
 		"device_key":   deviceInfo.DeviceKey,
 		"device_token": deviceInfo.DeviceToken,
+		"device_type":  deviceInfo.DeviceType,
 	}))
 }
 

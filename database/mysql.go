@@ -24,9 +24,13 @@ const (
 		"    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT," +
 		"    `key` VARCHAR(255) NOT NULL," +
 		"    `token` VARCHAR(255) NOT NULL," +
+		"    `device_type` VARCHAR(20) NOT NULL DEFAULT 'ios'," +
 		"    PRIMARY KEY (`id`)," +
 		"    UNIQUE KEY `key` (`key`)" +
 		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
+
+	// migrate old devices table to add the device_type column
+	dbSchemaMigration = "ALTER TABLE `devices` ADD COLUMN `device_type` VARCHAR(20) NOT NULL DEFAULT 'ios'"
 )
 
 func NewMySQL(dsn string) Database {
@@ -40,8 +44,27 @@ func NewMySQL(dsn string) Database {
 		logger.Fatalf("failed to init database schema(%s): %v", dbSchema, err)
 	}
 
+	migrateMySQLDeviceType(db)
+
 	mysqlDB = db
 	return &MySQL{}
+}
+
+// migrateMySQLDeviceType adds the device_type column to an existing devices table if it is missing.
+func migrateMySQLDeviceType(db *sql.DB) {
+	var count int
+	err := db.QueryRow(
+		"SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'devices' AND COLUMN_NAME = 'device_type'",
+	).Scan(&count)
+	if err != nil {
+		logger.Fatalf("failed to check database schema: %v", err)
+	}
+
+	if count == 0 {
+		if _, err := db.Exec(dbSchemaMigration); err != nil {
+			logger.Fatalf("failed to migrate database schema(%s): %v", dbSchemaMigration, err)
+		}
+	}
 }
 
 func NewMySQLWithTLS(dsn, tlsName, caPath, certPath, keyPath string, isSkipVerify bool) Database {
@@ -101,23 +124,24 @@ func (d *MySQL) CountAll() (int, error) {
 	return count, nil
 }
 
-func (d *MySQL) DeviceTokenByKey(key string) (string, error) {
-	var token string
-	err := mysqlDB.QueryRow("SELECT `token` FROM `devices` WHERE `key`=? ", key).Scan(&token)
+func (d *MySQL) DeviceTokenByKey(key string) (*DeviceRecord, error) {
+	var token, deviceType string
+	err := mysqlDB.QueryRow("SELECT `token`, `device_type` FROM `devices` WHERE `key`=?", key).Scan(&token, &deviceType)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return token, nil
+	return &DeviceRecord{Token: token, Type: normalizeDeviceType(deviceType)}, nil
 }
 
-func (d *MySQL) SaveDeviceTokenByKey(key, token string) (string, error) {
+func (d *MySQL) SaveDeviceTokenByKey(key, token, deviceType string) (string, error) {
 	if key == "" {
 		// Generate a new UUID as the deviceKey when a new device register
 		key = shortuuid.New()
 	}
 
-	_, err := mysqlDB.Exec("INSERT INTO `devices` (`key`,`token`) VALUES (?,?) ON DUPLICATE KEY UPDATE `token`=?", key, token, token)
+	deviceType = normalizeDeviceType(deviceType)
+	_, err := mysqlDB.Exec("INSERT INTO `devices` (`key`,`token`,`device_type`) VALUES (?,?,?) ON DUPLICATE KEY UPDATE `token`=?, `device_type`=?", key, token, deviceType, token, deviceType)
 	if err != nil {
 		return "", err
 	}
