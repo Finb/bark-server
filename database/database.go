@@ -10,8 +10,9 @@ const (
 
 // DeviceRecord describes a registered device's APNs token and device type.
 type DeviceRecord struct {
-	Token string `json:"token"`
-	Type  string `json:"type"`
+	Token     string `json:"token"`
+	Type      string `json:"type"`
+	UpdatedAt int64  `json:"updated_at"`
 }
 
 // normalizeDeviceType returns the default device type when it is empty.

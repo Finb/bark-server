@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+	"time"
 
 	"github.com/lithammer/shortuuid/v3"
 	"github.com/mritd/logger"
@@ -72,7 +73,7 @@ func (d *BboltDB) DeviceTokenByKey(key string) (*DeviceRecord, error) {
 
 // SaveDeviceToken create or update device token of specified key
 func (d *BboltDB) SaveDeviceTokenByKey(key, deviceToken, deviceType string) (string, error) {
-	record := DeviceRecord{Token: deviceToken, Type: normalizeDeviceType(deviceType)}
+	record := DeviceRecord{Token: deviceToken, Type: normalizeDeviceType(deviceType), UpdatedAt: time.Now().Unix()}
 	data, err := json.Marshal(record)
 	if err != nil {
 		return "", err

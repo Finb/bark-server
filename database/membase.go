@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"strings"
+	"time"
 )
 
 var (
@@ -23,7 +24,7 @@ func (d *MemBase) CountAll() (int, error) {
 
 func (d *MemBase) DeviceTokenByKey(key string) (*DeviceRecord, error) {
 	if cacheKey == key && cacheDeviceRecord.Token != "" {
-		return &DeviceRecord{Token: cacheDeviceRecord.Token, Type: cacheDeviceRecord.Type}, nil
+		return &DeviceRecord{Token: cacheDeviceRecord.Token, Type: cacheDeviceRecord.Type, UpdatedAt: cacheDeviceRecord.UpdatedAt}, nil
 	}
 	return nil, fmt.Errorf("key not found")
 }
@@ -34,8 +35,9 @@ func (d *MemBase) SaveDeviceTokenByKey(key, token, deviceType string) (string, e
 	}
 	// Deep copy prevents Fiber memory overwrite bugs.
 	cacheDeviceRecord = &DeviceRecord{
-		Token: strings.Clone(token),
-		Type:  normalizeDeviceType(deviceType),
+		Token:     strings.Clone(token),
+		Type:      normalizeDeviceType(deviceType),
+		UpdatedAt: time.Now().Unix(),
 	}
 	return key, nil
 }

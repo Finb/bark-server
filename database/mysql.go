@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
@@ -25,12 +26,16 @@ const (
 		"    `key` VARCHAR(255) NOT NULL," +
 		"    `token` VARCHAR(255) NOT NULL," +
 		"    `device_type` VARCHAR(20) NOT NULL DEFAULT 'ios'," +
+		"    `updated_at` BIGINT NOT NULL DEFAULT 0," +
 		"    PRIMARY KEY (`id`)," +
 		"    UNIQUE KEY `key` (`key`)" +
 		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
 
-	// migrate old devices table to add the device_type column
-	dbSchemaMigration = "ALTER TABLE `devices` ADD COLUMN `device_type` VARCHAR(20) NOT NULL DEFAULT 'ios'"
+	// migrate old devices table to add the device_type and updated_at columns
+	dbSchemaMigration = "" +
+		"ALTER TABLE `devices` " +
+		"ADD COLUMN `device_type` VARCHAR(20) NOT NULL DEFAULT 'ios', " +
+		"ADD COLUMN `updated_at` BIGINT NOT NULL DEFAULT 0"
 )
 
 func NewMySQL(dsn string) Database {
@@ -44,14 +49,14 @@ func NewMySQL(dsn string) Database {
 		logger.Fatalf("failed to init database schema(%s): %v", dbSchema, err)
 	}
 
-	migrateMySQLDeviceType(db)
+	migrateMySQLDevice(db)
 
 	mysqlDB = db
 	return &MySQL{}
 }
 
-// migrateMySQLDeviceType adds the device_type column to an existing devices table if it is missing.
-func migrateMySQLDeviceType(db *sql.DB) {
+// migrateMySQLDevice adds the device_type and updated_at columns to a pre-device_type devices table.
+func migrateMySQLDevice(db *sql.DB) {
 	var count int
 	err := db.QueryRow(
 		"SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'devices' AND COLUMN_NAME = 'device_type'",
@@ -126,12 +131,13 @@ func (d *MySQL) CountAll() (int, error) {
 
 func (d *MySQL) DeviceTokenByKey(key string) (*DeviceRecord, error) {
 	var token, deviceType string
-	err := mysqlDB.QueryRow("SELECT `token`, `device_type` FROM `devices` WHERE `key`=?", key).Scan(&token, &deviceType)
+	var updatedAt int64
+	err := mysqlDB.QueryRow("SELECT `token`, `device_type`, `updated_at` FROM `devices` WHERE `key`=?", key).Scan(&token, &deviceType, &updatedAt)
 	if err != nil {
 		return nil, err
 	}
 
-	return &DeviceRecord{Token: token, Type: normalizeDeviceType(deviceType)}, nil
+	return &DeviceRecord{Token: token, Type: normalizeDeviceType(deviceType), UpdatedAt: updatedAt}, nil
 }
 
 func (d *MySQL) SaveDeviceTokenByKey(key, token, deviceType string) (string, error) {
@@ -141,7 +147,8 @@ func (d *MySQL) SaveDeviceTokenByKey(key, token, deviceType string) (string, err
 	}
 
 	deviceType = normalizeDeviceType(deviceType)
-	_, err := mysqlDB.Exec("INSERT INTO `devices` (`key`,`token`,`device_type`) VALUES (?,?,?) ON DUPLICATE KEY UPDATE `token`=?, `device_type`=?", key, token, deviceType, token, deviceType)
+	now := time.Now().Unix()
+	_, err := mysqlDB.Exec("INSERT INTO `devices` (`key`,`token`,`device_type`,`updated_at`) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE `token`=?, `device_type`=?, `updated_at`=?", key, token, deviceType, now, token, deviceType, now)
 	if err != nil {
 		return "", err
 	}
