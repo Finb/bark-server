@@ -41,7 +41,7 @@ func (p PushMessage) IsDelete() bool {
 
 const (
 	topic          = "me.fin.bark"
-	watchOSTopic   = "me.fin.BarkWatch"
+	watchOSTopic   = "me.fin.bark.watch"
 	keyID          = "LH4T9V5U4R"
 	teamID         = "5U8LBRXG3A"
 	PayloadMaximum = 4096
