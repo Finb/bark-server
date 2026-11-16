@@ -65,6 +65,12 @@ task linux_amd64_v3
 
 Just run the server with `-dsn=user:pass@tcp(mysql_host)/bark`, it will use MySQL instead of file database Bbolt
 
+## One-Click Deploy
+
+<a href="https://repocloud.io/details/Bark/"><img src="https://d16t0pc4846x52.cloudfront.net/deploylobe.svg" alt="Deploy on RepoCloud" height="42"></a>
+<a href="https://www.heroku.com/deploy?template=https://github.com/Finb/bark-server"><img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy on Heroku" height="42"></a>
+<a href="https://zeabur.com/templates/D7E65G"><img src="https://zeabur.com/button.svg" alt="Deploy on Zeabur" height="42"></a>
+
 ## Others
 
 * [API_V2.md](docs/API_V2.md).
